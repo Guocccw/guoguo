@@ -1,0 +1,88 @@
+<!--pages/index/index.wxml-->
+<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+
+<scroll-view scroll-y class="main-container hide-scrollbar" wx:if="{{currentTab === 'lobby'}}">
+  <!-- 1. 动态 Logo 区 -->
+  <view class="brand-section">
+    <view class="logo-wrapper">
+      <view class="logo-box animate-bounce">
+        <text class="logo-text">果</text>
+        <view class="sparkle"></view>
+      </view>
+      <view class="logo-shadow"></view>
+    </view>
+    <view class="brand-text">
+      <text class="title">果果记分</text>
+      <text class="subtitle">简约高效 · 实时记分</text>
+    </view>
+  </view>
+
+  <!-- 2. 加入房间区 -->
+
+  <view class="card join-card">
+    <view class="card-header">
+      <view class="icon-box orange">
+        <view class="icon-hash"></view>
+      </view>
+      <text class="card-title">加入已有房间</text>
+    </view>
+    <view class="input-group">
+      <input type="number" placeholder="输入 3-6 位房间 ID" value="{{joinRoomNumber}}" bindinput="onJoinInput" placeholder-class="placeholder" class="main-input" />
+      <button class="action-btn join-btn {{joinRoomNumber ? 'active' : ''}}" bindtap="onJoinRoom">进入房间</button>
+    </view>
+  </view>
+
+  <!-- 3. 创建房间区 -->
+
+  <view class="card create-card">
+    <view class="card-header">
+      <view class="icon-box green">
+        <view class="icon-plus"></view>
+      </view>
+      <text class="card-title text-white">开启新对局</text>
+    </view>
+    <view class="input-group">
+      <input type="text" placeholder="为这场对局起名..." value="{{createRoomName}}" bindinput="onCreateInput" placeholder-class="placeholder-light" class="main-input-light" />
+      <button class="action-btn create-btn" bindtap="onCreateRoom">立即创建</button>
+    </view>
+    <view class="card-bg-sparkle"></view>
+  </view>
+
+  <!-- 4. 最近活动 -->
+
+  <view class="recent-section">
+    <view class="recent-header">
+      <text class="section-label">最近参与的记录</text>
+      <view class="icon-grid"></view>
+    </view>
+    <view class="recent-item" wx:for="{{recentRooms}}" wx:key="id" bindtap="goToRoom" data-id="{{item.id}}">
+      <view class="item-info">
+        <view class="item-icon">
+          <view class="icon-calendar"></view>
+        </view>
+        <view>
+          <view class="item-name">{{item.name}} #{{item.roomNumber}}</view>
+          <view class="item-meta">{{item.date}} · 盈亏 {{item.profit > 0 ? '+' : ''}}{{item.profit}}</view>
+        </view>
+      </view>
+      <view class="icon-arrow-right"></view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 5. 底部 Tab 导航 -->
+
+<view class="tab-bar">
+  <view class="tab-item {{currentTab === 'lobby' ? 'active' : ''}}" bindtap="switchTab" data-tab="lobby">
+    <view class="icon-home"></view>
+    <text>大厅</text>
+  </view>
+  <view class="tab-item {{currentTab === 'history' ? 'active' : ''}}" bindtap="switchTab" data-tab="history">
+    <view class="icon-history"></view>
+    <text>战绩</text>
+  </view>
+</view>
+
+<!-- 指示条 -->
+
+<view class="iphone-indicator"></view>

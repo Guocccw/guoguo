@@ -1,0 +1,66 @@
+<!--pages/profile/profile.wxml-->
+<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+
+<!-- 导航栏 -->
+
+<view class="nav-header">
+  <view class="back-btn" bindtap="goBack">
+    <view class="icon-back"></view>
+  </view>
+  <text class="nav-title">个人资料设置</text>
+  <view class="placeholder"></view>
+</view>
+
+<scroll-view scroll-y class="main-container hide-scrollbar">
+  <!-- 头像修改区 -->
+  <view class="avatar-section">
+    <view class="avatar-wrapper" bindtap="onChooseAvatar">
+      <image class="main-avatar" src="{{tempAvatarUrl || userInfo.avatarUrl}}"></image>
+      <view class="camera-icon">
+        <view class="icon-camera"></view>
+      </view>
+    </view>
+    <text class="avatar-hint">点击更换头像</text>
+  </view>
+
+  <!-- 资料卡片 -->
+
+  <view class="profile-card">
+    <view class="input-group">
+      <text class="input-label">用户昵称</text>
+      <view class="input-wrapper">
+        <input class="nickname-input" type="text" value="{{tempNickname}}" placeholder="请输入昵称" bindinput="onNicknameInput" placeholder-class="placeholder-style" />
+        <view class="icon-clear" wx:if="{{tempNickname}}" bindtap="onClearNickname"></view>
+      </view>
+    </view>
+
+    <!-- 预设果果头像库 -->
+    <view class="preset-section">
+      <text class="input-label">或者选择一个果果头像</text>
+      <view class="preset-grid">
+        <view class="preset-item {{selectedPreset === item ? 'active' : ''}}" wx:for="{{presetAvatars}}" wx:key="*this" bindtap="onSelectPreset" data-url="{{item}}">
+          <image src="{{item}}" class="preset-img"></image>
+          <view class="check-mark" wx:if="{{selectedPreset === item}}">
+            <view class="icon-check"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+
+  </view>
+
+  <!-- 说明 -->
+
+  <view class="tip-section">
+    <text class="tip-text">好的头像和昵称能让朋友在记分时更容易找到你哦！</text>
+  </view>
+</scroll-view>
+
+<!-- 底部保存按钮 -->
+
+<view class="bottom-action">
+  <button class="save-btn" bindtap="onSaveProfile">保存修改</button>
+</view>
+
+<view class="iphone-indicator"></view>

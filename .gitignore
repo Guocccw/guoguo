@@ -1,0 +1,39 @@
+# 依赖包
+node_modules/
+
+# 编译产物
+dist/
+build/
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# IDE 配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 微信开发者工具相关
+.project
+
+# 类型定义文件（如果使用了自动生成的）
+typings/
+
+# 测试覆盖率报告
+coverage/
+
+# 临时文件
+tmp/
+temp/
