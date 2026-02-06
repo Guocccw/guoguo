@@ -45,7 +45,7 @@
     <view class="card-bg-sparkle"></view>
   </view>
   <!-- 4. 进行中的房间 -->
-  <view class="recent-section">
+  <view class="recent-section" wx:if="{{currentRoom.id}}">
     <view class="recent-header">
       <text class="section-label">进行中的房间</text>
       <view class="icon-grid"></view>
@@ -57,8 +57,8 @@
         </view>
         <view>
           <view class="item-name">
-            <text class="room-name">{{currentRoom.roomName}}</text>
-            <text class="room-number">#{{currentRoom.roomNumber}}</text>  
+            <text class="room-name">{{currentRoom.room.name}}</text>
+            <text class="room-number">#{{currentRoom.room.roomNumber}}</text>  
           </view>
           <view class="item-meta">
             <text class="created-at">{{currentRoom.createdAt}}</text>

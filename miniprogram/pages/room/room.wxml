@@ -107,7 +107,8 @@
 </scroll-view>
 <!-- 底部固定操作栏 -->
 <view class="footer-fixed">
-  <button class="primary-action-btn" bindtap="onSettleTap">一键结算并退出</button>
+  <button class="primary-action-btn1" bindtap="onExitRoom">退出房间</button>
+  <button class="primary-action-btn2" bindtap="onSettleTap">一键结算并退出</button>
 </view>
 <!-- 记分键盘抽屉 -->
 <view class="drawer-overlay {{showNumpad ? 'show' : ''}}" bindtap="closeNumpad">

@@ -18,7 +18,6 @@ Page({
       userInfo: userInfo
     });
   },
-
   onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
@@ -56,21 +55,37 @@ Page({
       });
     }
   },
-
+  /**
+   * 格式化日期为yyyy-MM-dd格式
+   */
+  formatDate(dateString: string) {
+    // 检查是否为空字符串
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
   /**
    * 加载对局历史
-   * 注：Swagger 中目前没有直接的“我的对局列表”接口
-   * 1.0 版本我们先从本地缓存获取，或者你可以增加一个接口
    */
-  loadHistory() {
-    // 优先展示示例数据或本地存储的数据
-    const localHistory = wx.getStorageSync('game_history') || [
-      { id: '1', name: '周末园艺局', roomNumber: '402', date: '2026.02.04', profit: 25.5 },
-      { id: '2', name: '春节麻将局', roomNumber: '888', date: '2026.01.29', profit: -45.0 },
-      { id: '3', name: '德州友谊赛', roomNumber: '102', date: '2026.01.15', profit: 120.0 }
-    ];
+  async loadHistory() {
+    const { userInfo } = this.data;
+    if (!userInfo?.id) return;
 
-    this.setData({ historyList: localHistory });
+    try {
+      const res = await api.getParticipations(userInfo.id);
+      const historyList = res.data.map(item => ({
+        ...item,
+        createdAt: this.formatDate(item.createdAt)
+      })) || [];
+      this.setData({ historyList: historyList });
+    } catch (e) {
+      console.error('获取对局历史失败', e);
+      // 出错时确保显示空数组
+      this.setData({ historyList: [] });
+    }
   },
 
   switchTab(e: any) {

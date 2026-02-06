@@ -48,6 +48,7 @@ Page({
   },
 
   onClearNickname() {
+    console.log('确认清空昵称吗？');
     this.setData({ tempNickname: '' });
   },
 

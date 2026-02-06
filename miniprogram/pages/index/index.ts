@@ -13,6 +13,7 @@ Page({
     const windowInfo = (wx as any).getWindowInfo();
     this.setData({ statusBarHeight: windowInfo.statusBarHeight });
     silentLogin();
+
   },
   formatDate(dateString: string) {
     if (!dateString) return '';
@@ -22,11 +23,25 @@ Page({
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   },
+  async loadCurrentRoom() {
+    try {
+      const user = await ensureLogin();
+      const res = await api.getRoomByUser(user.id);
+      const room = {
+        ...res.data,
+        createdAt: this.formatDate(res.data.createdAt || ''),
+      };
+      this.setData({ currentRoom: room });
+    } catch {
+      this.setData({ currentRoom: {} as RoomParticipation });
+    }
+  },
   onShow() {
+    this.loadCurrentRoom();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 0
-      });
+        selected: 0 // “大厅”对应的索引
+      })
     }
   },
   onJoinInput(e: any) {
@@ -34,6 +49,11 @@ Page({
   },
   onCreateInput(e: any) {
     this.setData({ createRoomName: e.detail.value });
+  },
+  goToRoom() {
+    const { currentRoom } = this.data;
+    if (!currentRoom) return;
+    wx.navigateTo({ url: `/pages/room/room?roomNumber=${currentRoom.room.roomNumber}` });
   },
   async onJoinRoom() {
     const { joinRoomNumber } = this.data;
@@ -72,7 +92,6 @@ Page({
       wx.navigateTo({ url: `/pages/room/room?roomNumber=${room.roomNumber}` });
     } catch {
       wx.hideLoading();
-      wx.showToast({ title: '创建失败', icon: 'error' });
     }
   },
   async onCreateRoom() {
@@ -86,6 +105,9 @@ Page({
         wx.showModal({
           title: '提示',
           content: '您还没有设置头像和名称，是否前往设置？',
+          showCancel: true,
+          cancelText: '直接创建',
+          confirmText: '去设置',
           success: async (res) => {
             if (res.confirm) {
               wx.hideLoading();

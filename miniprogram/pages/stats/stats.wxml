@@ -45,17 +45,17 @@
       <!-- 记录条目 -->
       <view class="history-card" wx:for="{{historyList}}" wx:key="id" bindtap="viewRoomDetail" data-id="{{item.id}}">
         <view class="h-left">
-          <view class="h-icon {{item.profit >= 0 ? 'bg-green-light' : 'bg-red-light'}}">
-            <view class="icon {{item.profit >= 0 ? 'icon-trending-up' : 'icon-trending-down'}}"></view>
+          <view class="h-icon {{item.score >= 0 ? 'bg-green-light' : 'bg-red-light'}}">
+            <view class="icon {{item.score >= 0 ? 'icon-trending-up' : 'icon-trending-down'}}"></view>
           </view>
           <view class="h-info">
-            <text class="h-name">{{item.name}} #{{item.roomNumber}}</text>
-            <text class="h-date">{{item.date}} · 结算完成</text>
+            <text class="h-name">{{item.roomName}} #{{item.roomNumber}}</text>
+            <text class="h-date">{{item.createdAt}} · 结算完成</text>
           </view>
         </view>
         <view class="h-right">
-          <text class="h-profit {{item.profit >= 0 ? 'text-green' : 'text-red'}}">
-            {{item.profit >= 0 ? '+' : ''}}{{item.profit}}
+          <text class="h-profit {{item.score >= 0 ? 'text-green' : 'text-red'}}">
+            {{item.score >= 0 ? '+' : ''}}{{item.score}}
           </text>
           <view class="icon icon-chevron-right-gray ml-4"></view>
         </view>

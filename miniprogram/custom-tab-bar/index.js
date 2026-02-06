@@ -19,16 +19,17 @@ Component({
       }
     ]
   },
-  attached() {
-  },
   methods: {
+    // 供页面调用的方法
+    updateIndex(index) {
+      this.setData({
+        selected: index
+      })
+    },
     switchTab(e) {
       const data = e.currentTarget.dataset
-      const url = data.path
-      wx.switchTab({url})
-      this.setData({
-        selected: data.index
-      })
+      wx.switchTab({ url: data.path })
+      // 内部不需要再 setData，统一交给页面的 onShow 处理
     }
   }
 })

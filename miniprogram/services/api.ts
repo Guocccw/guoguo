@@ -42,14 +42,19 @@ export interface RoomMember {
 }
 
 export interface RoomParticipation {
+  userId: string;
+  id: string;
   roomId: string;
-  roomNumber: string;
-  name: string;
-  creatorId?: string;
-  status: 'active' | 'settled';
-  createdAt?: string;
-  updatedAt?: string;
+  roomNickname: string;
+  roomAvatar: string;
+  isOnline: boolean;
+  isCreator: boolean;
+  score: number;
+  createdAt: string;
+  updatedAt: string;
+  room: Room;
 }
+
 
 export interface Transfer {
   id: string;
@@ -86,7 +91,7 @@ export const api = {
   // 获取用户信息
   getUserInfo: (userId: string) =>
     request<BaseResponse<User>>({ url: `/api/users/${userId}`, method: 'GET' }),
-  
+
   // 创建房间
   createRoom: (creatorId: string, name: string) =>
     request<BaseResponse<Room>>({ url: '/api/rooms/create', method: 'POST', data: { creatorId, name } }),
@@ -102,6 +107,10 @@ export const api = {
   // 结算房间
   settleRoom: (data: { roomId: string; userId: string }) =>
     request<BaseResponse<Room>>({ url: '/api/rooms/settle', method: 'POST', data }),
+
+  // 获取用户参与的房间列表
+  getRoomByUser: (userId: string) =>
+    request<BaseResponse<RoomParticipation>>({ url: `/api/users/${userId}/participation`, method: 'GET' }),
 
   // 根据房间号获取房间信息
   getRoomByNumber: (roomNumber: string) =>

@@ -27,7 +27,6 @@ export async function silentLogin(): Promise<User> {
     // 2️⃣ 调后端接口获取用户信息
     const res = await api.login({ code });
     const user = res.data;
-    console.log(user)
     // 3️⃣ 存缓存
     wx.setStorageSync(USER_KEY, user);
 

@@ -34,7 +34,7 @@ Page({
 
     // 获取状态栏高度
     const windowInfo = (wx as any).getWindowInfo();
-    this.setData({ statusBarHeight: windowInfo.statusBarHeight + 40 });
+    this.setData({ statusBarHeight: windowInfo.statusBarHeight });
 
     // 获取房间号并加载数据
     if (options.roomNumber) {
@@ -58,13 +58,13 @@ Page({
       console.log('排序后的成员:', sortedMembers);
       // 计算当前用户余额
       const currentMember = sortedMembers.find(m => m.userId === this.data.currentUserId);
-      
+
       // 检查用户是否已加入房间，未加入则调用加入接口
       if (!currentMember) {
         const { roomNumber, currentUserId } = this.data;
         const roomNickname = `User${currentUserId.slice(-4)}`;
         const roomAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserId}`;
-        
+
         try {
           await api.joinRoom({ roomNumber, userId: currentUserId, roomNickname, roomAvatar });
           // 重新加载房间数据以包含新成员
@@ -75,7 +75,7 @@ Page({
           wx.showToast({ title: '加入房间失败', icon: 'none' });
         }
       }
-      
+
       const currentBalance = currentMember ? currentMember.score : 0;
 
       // 计算房间已进行时间
@@ -161,9 +161,10 @@ Page({
 
   // 返回按钮点击事件
   goBack() {
+    console.log("返回按钮点击事件")
     // 清除定时器
     this.clearTimer();
-    wx.navigateBack();
+    wx.navigateBack({ delta: 1 });
   },
 
   // 邀请好友
@@ -289,6 +290,20 @@ Page({
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
+    }
+  },
+  async onExitRoom() {
+    try {
+      // 退出房间
+      await api.leaveRoom({
+        roomId: this.data.roomInfo.id,
+        userId: this.data.currentUserId
+      });
+      wx.showToast({ title: '退出房间成功', icon: 'success' });
+      this.goBack();
+    } catch (error) {
+      console.error('退出房间失败:', error);
+      wx.showToast({ title: '退出房间失败', icon: 'none' });
     }
   },
 
