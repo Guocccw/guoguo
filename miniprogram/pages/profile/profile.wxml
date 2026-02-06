@@ -14,13 +14,9 @@
 <scroll-view scroll-y class="main-container hide-scrollbar">
   <!-- 头像修改区 -->
   <view class="avatar-section">
-    <view class="avatar-wrapper" bindtap="onChooseAvatar">
+    <view class="avatar-wrapper" >
       <image class="main-avatar" src="{{tempAvatarUrl || userInfo.avatarUrl}}"></image>
-      <view class="camera-icon">
-        <view class="icon-camera"></view>
-      </view>
     </view>
-    <text class="avatar-hint">点击更换头像</text>
   </view>
 
   <!-- 资料卡片 -->
@@ -36,7 +32,7 @@
 
     <!-- 预设果果头像库 -->
     <view class="preset-section">
-      <text class="input-label">或者选择一个果果头像</text>
+      <text class="input-label">选择一个果果头像</text>
       <view class="preset-grid">
         <view class="preset-item {{selectedPreset === item ? 'active' : ''}}" wx:for="{{presetAvatars}}" wx:key="*this" bindtap="onSelectPreset" data-url="{{item}}">
           <image src="{{item}}" class="preset-img"></image>

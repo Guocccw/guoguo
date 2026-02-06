@@ -1,2 +1,66 @@
-<!--pages/stats/stats.wxml-->
-<text>pages/stats/stats.wxml</text>
+<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+<!-- 顶部导航栏 -->
+<view class="nav-header">
+  <text class="nav-title">我的战绩</text>
+  <view class="settings-btn" bindtap="goToProfile">
+    <view class="icon icon-user-settings"></view>
+  </view>
+</view>
+<scroll-view scroll-y class="main-container hide-scrollbar">
+  <!-- 1. 个人数据大看板 -->
+  <view class="stats-master-card">
+    <view class="card-inner">
+      <view class="user-info-row" bindtap="goToProfile">
+        <image class="user-avatar" src="{{userInfo.avatarUrl || 'https://www.google.com/search?q=https://api.dicebear.com/7.x/avataaars/svg%3Fseed%3DGuo'}}"></image>
+        <view class="user-text">
+          <text class="user-tag">点击修改</text>
+          <text class="user-name">{{userInfo.nickname || '果果用户'}}</text>
+        </view>
+        <view class="flex-spacer"></view>
+        <view class="icon icon-chevron-right-white opacity-40"></view>
+      </view>
+      <view class="balance-main">
+        <text class="balance-label">累计总盈亏</text>
+        <view class="balance-value-row">
+          <text class="balance-symbol">{{absBalance >= 0 ? '' : '-'}}</text>
+          <text class="balance-number">{{absBalance}}</text>
+        </view>
+      </view>
+    </view>
+    <!-- 背景装饰图标 -->
+    <view class="icon-chart-bg"></view>
+  </view>
+  <!-- 2. 往期对局记录 -->
+  <view class="list-section">
+    <view class="section-header">
+      <text class="section-title">对局回顾</text>
+      <text class="section-subtitle">HISTORY RECORDS</text>
+    </view>
+    <view class="history-list">
+      <!-- 缺省状态 -->
+      <view class="no-data" wx:if="{{historyList.length === 0}}">
+        <view class="icon icon-empty-box mb-4"></view>
+        <text>还没有参与过任何对局哦</text>
+      </view>
+      <!-- 记录条目 -->
+      <view class="history-card" wx:for="{{historyList}}" wx:key="id" bindtap="viewRoomDetail" data-id="{{item.id}}">
+        <view class="h-left">
+          <view class="h-icon {{item.profit >= 0 ? 'bg-green-light' : 'bg-red-light'}}">
+            <view class="icon {{item.profit >= 0 ? 'icon-trending-up' : 'icon-trending-down'}}"></view>
+          </view>
+          <view class="h-info">
+            <text class="h-name">{{item.name}} #{{item.roomNumber}}</text>
+            <text class="h-date">{{item.date}} · 结算完成</text>
+          </view>
+        </view>
+        <view class="h-right">
+          <text class="h-profit {{item.profit >= 0 ? 'text-green' : 'text-red'}}">
+            {{item.profit >= 0 ? '+' : ''}}{{item.profit}}
+          </text>
+          <view class="icon icon-chevron-right-gray ml-4"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="safe-area-bottom"></view>
+</scroll-view>

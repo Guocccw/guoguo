@@ -1,128 +1,144 @@
 <!-- 自定义状态栏占位 -->
 <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
-
-<!-- 自定义标题栏 -->
+<!-- 顶部导航栏 -->
 <view class="nav-header">
   <view class="back-btn" bindtap="goBack">
-    <icon class="iconify" data-icon="heroicons:chevron-left" style="font-size: 24px; color: #94a3b8;"></icon>
+    <view class="icon icon-back"></view>
   </view>
-  <view class="title-group">
-    <text class="room-id">房间 ID: {{roomNumber}}</text>
-    <view class="status-badge">
-      <view class="dot"></view>
+  <view class="title-container">
+    <text class="room-id">房间号: {{roomNumber}}</text>
+    <view class="status-indicator">
+      <view class="dot-pulse"></view>
       <text>进行中</text>
     </view>
   </view>
   <view class="settings-btn">
-    <icon class="iconify" data-icon="heroicons:cog-6-tooth" style="font-size: 20px; color: #94a3b8;"></icon>
+    <view class="icon icon-settings"></view>
   </view>
 </view>
-
 <scroll-view scroll-y class="main-container hide-scrollbar">
-  <!-- 房间状态卡片 -->
+  <!-- 核心：房间状态卡片 -->
   <view class="room-card">
-    <view class="card-content">
-      <view class="top-row">
-        <view>
-          <text class="label">当前房间</text>
-          <text class="room-name">{{roomInfo.name || '正在加载...'}}</text>
+    <view class="card-inner">
+      <view class="card-header-row">
+        <view class="title-box">
+          <text class="label-tiny">当前房间</text>
+          <text class="room-name">{{roomInfo.name}}</text>
         </view>
-        <view class="status-tag">ACTIVE</view>
+        <view class="active-badge">ACTIVE</view>
       </view>
-      <view class="bottom-row">
-        <view class="stat-item">
-          <text class="stat-label">当前积分</text>
-          <text class="stat-value">55</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-label">已进行</text>
-          <text class="stat-value">02:45:12</text>
-        </view>
-        <view class="card-footer">
-          <text class="date">2026.02.04</text>
-          <text class="creator">创建者: 果果</text>
-          <view class="invite-btn" bindtap="onInvite">
-            <icon class="iconify" data-icon="heroicons:share" style="font-size: 12px; margin-right: 4px;"></icon>
-            邀请好友
+      <view class="card-stats-row">
+        <view class="stat-group">
+          <view class="stat-box">
+            <text class="stat-label">当前积分</text>
+            <text class="stat-value big-font">{{currentBalance || 0}}</text>
+          </view>
+          <view class="stat-box mt-4">
+            <text class="stat-label">已进行</text>
+            <text class="stat-value font-mono">{{elapsedTime || '00:00:00'}}</text>
           </view>
         </view>
-      </view>
-    </view>
-    <icon class="card-bg-icon iconify" data-icon="heroicons:trophy"></icon>
-  </view>
-
-  <!-- 实时积分榜 -->
-  <view class="section-header">
-    <text class="section-title">实时积分榜</text>
-    <view class="avatar-stack">
-      <image wx:for="{{members}}" wx:key="userId" src="{{item.roomAvatar}}" class="stack-img"></image>
-    </view>
-  </view>
-
-  <view class="member-list">
-    <view class="member-item" wx:for="{{members}}" wx:key="userId" bindtap="onMemberTap" data-member="{{item}}">
-      <view class="member-left">
-        <view class="avatar-box">
-          <image src="{{item.roomAvatar}}" class="avatar"></image>
-          <view class="rank-badge rank-{{index + 1}}">{{index + 1}}</view>
-        </view>
-        <view>
-          <text class="nickname">{{item.roomNickname}}</text>
-          <text class="desc">发挥稳定</text>
+        <view class="stat-info-right text-right">
+          <text class="date-text">{{roomDate || ''}}</text>
+          <text class="creator-text">创建者: {{creatorName || ''}}</text>
+          <!-- <view class="invite-action" bindtap="onInvite">
+            <view class="icon icon-share-white"></view>
+            <text>邀请好友</text>
+          </view> -->
         </view>
       </view>
-      <view class="member-right">
-        <text class="balance {{item.balance >= 0 ? 'positive' : 'negative'}}">{{item.balance > 0 ? '+' : ''}}{{item.balance}}</text>
+    </view>
+    <!-- 背景装饰图标 -->
+    <view class="icon-trophy-bg"></view>
+  </view>
+  <!-- 实时排行列表 -->
+  <view class="section-title-row">
+    <text class="section-h">成员动态</text>
+    <view class="member-count">{{members.length}}</view>
+    <view class="flex-spacer"></view>
+    <view class="invite-mini-btn" bindtap="onInvite">
+      <view class="icon icon-user-plus"></view>
+      <text>邀好友</text>
+    </view>
+  </view>
+  <view class="member-grid">
+    <view class="member-card-item" wx:for="{{members}}" wx:key="userId" bindtap="onMemberTap" data-member="{{item}}">
+      <view class="member-main">
+        <view class="avatar-wrap">
+          <image src="{{item.roomAvatar}}" class="avatar-img"></image>
+          <view class="rank-medal rank-color-{{index + 1}}">{{index + 1}}</view>
+        </view>
+        <view class="member-info">
+          <text class="m-name">{{item.roomNickname}}</text>
+          <text class="m-desc"></text>
+        </view>
+      </view>
+      <view class="member-score">
+        <text class="score-num {{item.score >= 0 ? 'text-dark' : 'text-red'}}">
+          {{item.score > 0 ? '+' : ''}}{{item.score}}
+        </text>
+        <text class="score-unit">余额</text>
       </view>
     </view>
   </view>
-
-  <!-- 转账记录 -->
-  <view class="section-header mt-6">
-    <text class="section-title">转账记录</text>
+  <!-- 实时转分流水 -->
+  <view class="section-title-row mt-6">
+    <view class="icon icon-transfer-gray mr-2"></view>
+    <text class="section-h-gray">实时转分记录</text>
   </view>
-  <view class="history-list">
-    <view class="history-item" wx:for="{{transfers}}" wx:key="id">
-      <view class="item-left">
-        <text class="time">{{item.time}}</text>
-        <text class="log"><text class="me">我</text> → <text class="target">{{item.receiverName}}</text></text>
+  <view class="ledger-container">
+    <view class="no-data" wx:if="{{transfers.length === 0}}">
+      <view class="icon icon-history-light mb-2"></view>
+      <text>点击成员头像开始记分</text>
+    </view>
+    <view class="ledger-item" wx:for="{{transfers}}" wx:key="id">
+      <view class="ledger-left">
+        <text class="l-time">{{item.time}}</text>
+        <view class="l-content">
+          <text class="l-me">我</text>
+          <text class="l-arrow">→</text>
+          <text class="l-target">{{item.receiverName}}</text>
+        </view>
       </view>
-      <text class="amount">+{{item.amount}}</text>
+      <text class="l-amount">+{{item.amount}}</text>
     </view>
   </view>
+  <view class="safe-area-inset"></view>
 </scroll-view>
-
-<!-- 底部结算按钮 -->
-<view class="bottom-bar">
-  <button class="settle-btn" bindtap="onSettleTap">一键结算并退出</button>
+<!-- 底部固定操作栏 -->
+<view class="footer-fixed">
+  <button class="primary-action-btn" bindtap="onSettleTap">一键结算并退出</button>
 </view>
-
-<!-- 数字键盘抽屉 (Numpad) -->
-<view class="drawer-mask" wx:if="{{showNumpad}}" bindtap="closeNumpad">
-  <view class="numpad-drawer" catchtap="stopBubble">
-    <view class="drawer-header">
-      <view class="target-info">
-        <image src="{{selectedMember.roomAvatar}}" class="target-avatar"></image>
-        <view>
-          <text class="target-name">给 {{selectedMember.roomNickname}} 记分</text>
-          <text class="target-sub">积分将从你的账户转出</text>
+<!-- 记分键盘抽屉 -->
+<view class="drawer-overlay {{showNumpad ? 'show' : ''}}" bindtap="closeNumpad">
+  <view class="numpad-content" catchtap="stopBubble">
+    <view class="numpad-header">
+      <view class="target-profile">
+        <view class="target-avatar-wrap">
+          <image src="{{selectedMember.roomAvatar}}" class="t-avatar"></image>
+          <view class="t-plus-icon">+</view>
+        </view>
+        <view class="t-text">
+          <text class="t-name">给 {{selectedMember.roomNickname}} 记分</text>
+          <text class="t-hint">分值将从你的账户转出到对方</text>
         </view>
       </view>
-      <icon class="iconify close-icon" data-icon="heroicons:x-mark" bindtap="closeNumpad"></icon>
-    </view>
-
-    <view class="amount-display">
-      <text class="amount-num">{{amount || '0'}}</text>
-      <text class="amount-unit">积分</text>
-    </view>
-
-    <view class="numpad-grid">
-      <view class="num-key" wx:for="{{[1,2,3,4,5,6,7,8,9,'.',0]}}" wx:key="*this" bindtap="onNumTap" data-num="{{item}}">{{item}}</view>
-      <view class="num-key delete" bindtap="onDeleteTap">
-        <icon class="iconify" data-icon="heroicons:arrow-left-start-on-rectangle" style="transform: rotate(90deg);"></icon>
+      <view class="close-btn" bindtap="closeNumpad">
+        <view class="icon icon-close-gray"></view>
       </view>
     </view>
-
-    <button class="confirm-btn {{amount ? 'active' : ''}}" bindtap="submitTransfer">确认并记分</button>
+    <view class="numpad-display">
+      <text class="display-num">{{amount || '0'}}</text>
+      <text class="display-unit">POINTS</text>
+    </view>
+    <view class="keyboard-grid">
+      <view class="key" wx:for="{{[1,2,3,4,5,6,7,8,9,'.',0]}}" wx:key="*this" bindtap="onNumTap" data-num="{{item}}">
+        {{item}}
+      </view>
+      <view class="key key-del" bindtap="onDeleteTap">
+        <view class="icon icon-backspace"></view>
+      </view>
+    </view>
+    <button class="numpad-submit {{amount ? 'active' : ''}}" bindtap="submitTransfer">确认并记分</button>
   </view>
 </view>

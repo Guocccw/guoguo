@@ -1,70 +1,75 @@
 // pages/index/index.ts
 import { api } from '../../services/api';
 import { silentLogin, ensureLogin } from '../../utils/auth';
+import { RoomParticipation } from '../../services/api';
 Page({
   data: {
     statusBarHeight: 20,
-    currentTab: 'lobby',
     joinRoomNumber: '',
     createRoomName: '',
-    recentRooms: []
+    currentRoom: {} as RoomParticipation,
   },
-
   onLoad() {
-    const sysInfo = wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sysInfo.statusBarHeight });
+    const windowInfo = (wx as any).getWindowInfo();
+    this.setData({ statusBarHeight: windowInfo.statusBarHeight });
     silentLogin();
   },
-
-
+  formatDate(dateString: string) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+  onShow() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 0
+      });
+    }
+  },
   onJoinInput(e: any) {
     this.setData({ joinRoomNumber: e.detail.value });
   },
-
   onCreateInput(e: any) {
     this.setData({ createRoomName: e.detail.value });
   },
-
   async onJoinRoom() {
     const { joinRoomNumber } = this.data;
     if (!joinRoomNumber) return;
-
     wx.showLoading({ title: '加入中' });
     try {
       const user = await ensureLogin();
-
-      const room = await api.joinRoom({
+      await api.joinRoom({
         roomNumber: joinRoomNumber,
         userId: user.id,
         roomNickname: user.nickname,
         roomAvatar: user.avatarUrl
       });
-
       wx.hideLoading();
-      wx.navigateTo({ url: `/pages/room/room?roomId=${room.roomId}` });
+      wx.navigateTo({ url: `/pages/room/room?roomNumber=${joinRoomNumber}` });
     } catch {
       wx.hideLoading();
       wx.showToast({ title: '加入失败', icon: 'error' });
     }
   },
-
   // 创建并加入房间的辅助函数
   async createAndJoinRoom(user: any, roomName: string) {
     try {
-      const room = await api.createRoom(
+      const res = await api.createRoom(
         user.id,
         roomName || '未命名对局'
       );
-
+      const room = res.data;
       await api.joinRoom({
         roomNumber: room.roomNumber,
         userId: user.id,
         roomNickname: user.nickname,
         roomAvatar: user.avatarUrl
       });
-
       wx.hideLoading();
-      wx.navigateTo({ url: `/pages/room/room?roomId=${room.id}` });
+      wx.navigateTo({ url: `/pages/room/room?roomNumber=${room.roomNumber}` });
     } catch {
       wx.hideLoading();
       wx.showToast({ title: '创建失败', icon: 'error' });
@@ -97,10 +102,13 @@ Page({
         // 有头像，直接创建房间
         await this.createAndJoinRoom(user, createRoomName);
       }
-
     } catch {
       wx.hideLoading();
       wx.showToast({ title: '创建失败', icon: 'error' });
     }
+  },
+  switchTab(e: any) {
+    const currentTab = e.currentTarget.dataset.tab;
+    this.setData({ currentTab });
   }
 });

@@ -1,6 +1,13 @@
 const BASE_URL = 'http://192.168.137.225:3000'; // 生产环境替换为真实域名
 
-export const request = <T>(options: wx.RequestOption): Promise<T> => {
+interface RequestOption {
+  url: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS';
+  data?: any;
+  header?: any;
+}
+
+export const request = <T>(options: RequestOption): Promise<T> => {
   return new Promise((resolve, reject) => {
     const token = wx.getStorageSync('token');
     wx.request({

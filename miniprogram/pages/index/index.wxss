@@ -236,12 +236,27 @@ page {
   font-weight: 800;
   color: #1e293b;
 }
-
-.item-meta {
-  font-size: 20rpx;
+.room-name {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #1e293b;
+}
+.room-number {
+  font-size: 22rpx;
   color: #94a3b8;
   font-weight: 600;
   margin-top: 4rpx;
+  margin-left: 12rpx;
+}
+.created-at {
+  font-size: 24rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.score {
+  font-size: 24rpx;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
 /* 底部 TabBar */
@@ -280,6 +295,9 @@ page {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+}
+[class^="icon-"].active {
+  color: #4caf50;
 }
 
 .icon-hash { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5' /%3E%3C/svg%3E"); }

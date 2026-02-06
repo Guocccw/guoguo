@@ -9,22 +9,34 @@ Page({
     selectedPreset: '',
     presetAvatars: [
       'https://api.dicebear.com/7.x/avataaars/svg?seed=happy',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Mosz',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Melon',
       'https://api.dicebear.com/7.x/avataaars/svg?seed=Orange',
       'https://api.dicebear.com/7.x/avataaars/svg?seed=yuma',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=fuck',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=huole',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=facai',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Melon'
+      "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Destiny",
+      "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=George",
+      "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Brooklynn",
+      "https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=Brian",
+      "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Jameson",
+      "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Sadie",
+      "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Brooklynn",
+      "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Ryan"
     ]
   },
 
   onLoad() {
-    const sysInfo = wx.getSystemInfoSync();
+    this.initUserInfo();
+  },
+
+  onShow() {
+    this.initUserInfo();
+  },
+
+  initUserInfo() {
+    const windowInfo = (wx as any).getWindowInfo();
     const userInfo = wx.getStorageSync('userInfo');
     
     this.setData({ 
-      statusBarHeight: sysInfo.statusBarHeight,
+      statusBarHeight: windowInfo.statusBarHeight,
       userInfo: userInfo,
       tempNickname: userInfo?.nickname || '',
       tempAvatarUrl: userInfo?.avatarUrl || ''
@@ -37,21 +49,6 @@ Page({
 
   onClearNickname() {
     this.setData({ tempNickname: '' });
-  },
-
-  onChooseAvatar() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        const path = res.tempFiles[0].tempFilePath;
-        this.setData({ 
-          tempAvatarUrl: path,
-          selectedPreset: '' 
-        });
-      }
-    });
   },
 
   onSelectPreset(e: any) {
@@ -79,7 +76,7 @@ Page({
         avatarUrl: tempAvatarUrl
       });
 
-      wx.setStorageSync('userInfo', res);
+      wx.setStorageSync('userInfo', res.data);
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       

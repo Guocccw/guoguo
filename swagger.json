@@ -1,0 +1,784 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "果果记分系统 API",
+    "description": "果果记分系统的后端API接口文档",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "本地开发服务器"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "获取欢迎信息",
+        "tags": ["根模块"],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/auth/wechat": {
+      "post": {
+        "summary": "微信登录认证",
+        "tags": ["用户模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "微信登录临时码，5分钟有效，只能使用一次"
+                  }
+                },
+                "required": ["code"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "根据ID获取用户信息",
+        "tags": ["用户模块"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "更新用户信息（修改头像/昵称）",
+        "tags": ["用户模块"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string",
+                    "description": "用户昵称"
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "description": "用户头像URL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/create": {
+      "post": {
+        "summary": "创建房间",
+        "tags": ["房间模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "creatorId": {
+                    "type": "string",
+                    "description": "创建者ID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "房间名称"
+                  }
+                },
+                "required": ["creatorId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/join": {
+      "post": {
+        "summary": "加入房间",
+        "tags": ["房间模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roomNumber": {
+                    "type": "string",
+                    "description": "房间号"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "用户ID"
+                  },
+                  "roomNickname": {
+                    "type": "string",
+                    "description": "用户在房间内的昵称"
+                  },
+                  "roomAvatar": {
+                    "type": "string",
+                    "description": "用户在房间内的头像"
+                  }
+                },
+                "required": ["roomNumber", "userId", "roomNickname"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomMember"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/leave": {
+      "post": {
+        "summary": "离开房间",
+        "tags": ["房间模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roomId": {
+                    "type": "string",
+                    "description": "房间ID"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "用户ID"
+                  }
+                },
+                "required": ["roomId", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功"
+          }
+        }
+      }
+    },
+    "/api/rooms/settle": {
+      "post": {
+        "summary": "结算房间",
+        "tags": ["房间模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roomId": {
+                    "type": "string",
+                    "description": "房间ID"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "用户ID"
+                  }
+                },
+                "required": ["roomId", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/{roomNumber}": {
+      "get": {
+        "summary": "根据房间号获取房间信息",
+        "tags": ["房间模块"],
+        "parameters": [
+          {
+            "name": "roomNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "房间号"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/{roomId}/members": {
+      "get": {
+        "summary": "获取房间成员列表",
+        "tags": ["房间模块"],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "房间ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoomMember"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/room/{roomId}": {
+      "get": {
+        "summary": "获取房间结算信息",
+        "tags": ["结算模块"],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "房间ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettlementItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/room/{roomId}/details": {
+      "get": {
+        "summary": "获取房间结算详情",
+        "tags": ["结算模块"],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "房间ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settlements/user/{userId}/stats": {
+      "get": {
+        "summary": "获取用户统计信息",
+        "tags": ["结算模块"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transfers/create": {
+      "post": {
+        "summary": "创建转分记录",
+        "tags": ["转分模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roomId": {
+                    "type": "string",
+                    "description": "房间ID"
+                  },
+                  "senderId": {
+                    "type": "string",
+                    "description": "发送者ID"
+                  },
+                  "receiverId": {
+                    "type": "string",
+                    "description": "接收者ID"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "转分分值"
+                  }
+                },
+                "required": ["roomId", "senderId", "receiverId", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transfers/revert": {
+      "post": {
+        "summary": "撤销转分记录",
+        "tags": ["转分模块"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transferId": {
+                    "type": "string",
+                    "description": "转分记录ID"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "操作用户ID"
+                  }
+                },
+                "required": ["transferId", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transfers/room/{roomId}": {
+      "get": {
+        "summary": "获取房间转分历史",
+        "tags": ["转分模块"],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "房间ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transfer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transfers/{transferId}": {
+      "get": {
+        "summary": "根据ID获取转分记录",
+        "tags": ["转分模块"],
+        "parameters": [
+          {
+            "name": "transferId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "转分记录ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "用户ID"
+          },
+          "wechatOpenid": {
+            "type": "string",
+            "description": "微信OpenID"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "用户昵称"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "用户头像URL"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "房间ID"
+          },
+          "roomNumber": {
+            "type": "string",
+            "description": "房间号"
+          },
+          "name": {
+            "type": "string",
+            "description": "房间名称"
+          },
+          "creatorId": {
+            "type": "string",
+            "description": "创建者ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "settled"],
+            "description": "房间状态"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "RoomMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "成员ID"
+          },
+          "roomId": {
+            "type": "string",
+            "description": "房间ID"
+          },
+          "userId": {
+            "type": "string",
+            "description": "用户ID"
+          },
+          "roomNickname": {
+            "type": "string",
+            "description": "用户在房间内的昵称"
+          },
+          "roomAvatar": {
+            "type": "string",
+            "description": "用户在房间内的头像"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "用户是否在线"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "Transfer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "转分记录ID"
+          },
+          "roomId": {
+            "type": "string",
+            "description": "房间ID"
+          },
+          "senderId": {
+            "type": "string",
+            "description": "发送者ID"
+          },
+          "receiverId": {
+            "type": "string",
+            "description": "接收者ID"
+          },
+          "amount": {
+            "type": "number",
+            "description": "转分分值"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["completed", "reverted"],
+            "description": "转分状态"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "SettlementItem": {
+        "type": "object",
+        "properties": {
+          "fromUserId": {
+            "type": "string",
+            "description": "付分人ID"
+          },
+          "toUserId": {
+            "type": "string",
+            "description": "收分人ID"
+          },
+          "amount": {
+            "type": "number",
+            "description": "分值"
+          }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "totalReceived": {
+            "type": "number",
+            "description": "总收分分值"
+          },
+          "totalSent": {
+            "type": "number",
+            "description": "总付分分值"
+          },
+          "balance": {
+            "type": "number",
+            "description": "分数余额"
+          }
+        }
+      }
+    }
+  }
+}

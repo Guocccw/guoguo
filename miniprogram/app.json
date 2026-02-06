@@ -12,5 +12,26 @@
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
   },
+  "tabBar": {
+    "custom": true,
+    "color": "#cbd5e1",
+    "selectedColor": "#4caf50",
+    "backgroundColor": "rgba(255,255,255,0.95)",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "大厅",
+        "iconPath": "images/icon-home.png",
+        "selectedIconPath": "images/icon-home-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "战绩",
+        "iconPath": "images/icon-history.png",
+        "selectedIconPath": "images/icon-history-active.png"
+      }
+    ]
+  },
   "sitemapLocation": "sitemap.json"
 }
