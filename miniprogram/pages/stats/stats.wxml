@@ -1,4 +1,4 @@
-<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+<view class="status-bar" style="margin-top: {{statusBarHeight}}px;"></view>
 <!-- 顶部导航栏 -->
 <view class="nav-header">
   <text class="nav-title">我的战绩</text>

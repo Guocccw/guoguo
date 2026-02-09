@@ -1,4 +1,5 @@
-const BASE_URL = "https://www.guoguoscore.cloud/";
+// const BASE_URL = "https://www.guoguoscore.cloud";
+const BASE_URL = "http://101.34.246.137";
 
 interface RequestOption {
   url: string;

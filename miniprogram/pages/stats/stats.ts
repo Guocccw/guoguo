@@ -12,7 +12,7 @@ Page({
   onLoad() {
     const windowInfo = (wx as any).getWindowInfo();
     const userInfo = wx.getStorageSync('userInfo');
-
+    console.log(windowInfo.statusBarHeight);
     this.setData({
       statusBarHeight: windowInfo.statusBarHeight,
       userInfo: userInfo
