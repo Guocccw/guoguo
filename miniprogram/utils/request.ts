@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.137.225:3000'; // 生产环境替换为真实域名
+const BASE_URL = "https://www.guoguoscore.cloud/";
 
 interface RequestOption {
   url: string;

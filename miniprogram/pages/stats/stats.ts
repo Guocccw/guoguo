@@ -71,6 +71,7 @@ Page({
    * 加载对局历史
    */
   async loadHistory() {
+    console.log('loadHistory');
     const { userInfo } = this.data;
     if (!userInfo?.id) return;
 

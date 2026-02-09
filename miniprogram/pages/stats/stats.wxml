@@ -50,7 +50,7 @@
           </view>
           <view class="h-info">
             <text class="h-name">{{item.roomName}} #{{item.roomNumber}}</text>
-            <text class="h-date">{{item.createdAt}} · 结算完成</text>
+            <text class="h-date">{{item.createdAt}} · {{item.status === 'COMPLETED' ? '结算完成' : '未结算'}}</text>
           </view>
         </view>
         <view class="h-right">
