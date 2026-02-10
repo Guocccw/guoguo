@@ -1,0 +1,96 @@
+<!-- 自定义状态栏占位 -->
+<view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
+<!-- 顶部导航栏 -->
+<view class="nav-header">
+  <view class="back-btn" bindtap="goBack">
+    <view class="icon icon-back"></view>
+  </view>
+  <view class="title-container">
+    <text class="room-id">战绩详情</text>
+    <view class="status-indicator">
+      <text>已结束</text>
+    </view>
+  </view>
+  <view class="settings-btn">
+    <view class="icon icon-settings"></view>
+  </view>
+</view>
+<scroll-view scroll-y class="main-container hide-scrollbar">
+  <!-- 战绩状态卡片 -->
+  <view class="room-card">
+    <view class="card-inner">
+      <view class="card-header-row">
+        <view class="title-box">
+          <text class="label-tiny">战绩详情</text>
+          <text class="room-name">{{roomInfo.name}}</text>
+        </view>
+        <view class="active-badge">FINISHED</view>
+      </view>
+      <view class="card-stats-row">
+        <view class="stat-group">
+          <view class="stat-box">
+            <text class="stat-label">最终积分</text>
+            <text class="stat-value big-font">{{currentBalance || 0}}</text>
+          </view>
+          <view class="stat-box mt-4">
+            <text class="stat-label">总时长</text>
+            <text class="stat-value font-mono">{{elapsedTime || '00:00:00'}}</text>
+          </view>
+        </view>
+        <view class="stat-info-right text-right">
+          <text class="date-text">{{roomDate || ''}}</text>
+          <text class="creator-text">创建者: {{creatorName || ''}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 成员列表 -->
+  <view class="section-title-row">
+    <text class="section-h">成员列表</text>
+    <view class="member-count">{{members.length}}</view>
+    <view class="flex-spacer"></view>
+  </view>
+  <view class="member-grid">
+    <view class="member-card-item" wx:for="{{members}}" wx:key="userId" bindtap="onMemberTap" data-member="{{item}}">
+      <view class="member-main">
+        <view class="avatar-wrap">
+          <image src="{{item.roomAvatar}}" class="avatar-img"></image>
+          <view class="rank-medal rank-color-{{index + 1}}">{{index + 1}}</view>
+        </view>
+        <view class="member-info">
+          <text class="m-name">{{item.roomNickname}}</text>
+          <text class="m-desc"></text>
+        </view>
+      </view>
+      <view class="member-score">
+        <text class="score-num {{item.score >= 0 ? 'text-dark' : 'text-red'}}">
+          {{item.score > 0 ? '+' : ''}}{{item.score}}
+        </text>
+        <text class="score-unit">积分</text>
+      </view>
+    </view>
+  </view>
+  <!-- 转账记录 -->
+  <view class="section-title-row mt-6">
+    <view class="icon icon-transfer-gray mr-2"></view>
+    <text class="section-h-gray">转账记录</text>
+  </view>
+  <view class="ledger-container">
+    <view class="no-data" wx:if="{{transfers.length === 0}}">
+      <view class="icon icon-history-light mb-2"></view>
+      <text>暂无转账记录</text>
+    </view>
+    <view class="ledger-item" wx:for="{{transfers}}" wx:key="id">
+      <view class="ledger-left">
+        <text class="l-time">{{item.time}}</text>
+        <view class="l-content">
+          <text class="l-me">{{item.senderName}}</text>
+          <text class="l-arrow">→</text>
+          <text class="l-target">{{item.receiverName}}</text>
+        </view>
+      </view>
+      <text class="l-amount">+{{item.amount}}</text>
+    </view>
+  </view>
+  <view class="safe-area-inset"></view>
+</scroll-view>

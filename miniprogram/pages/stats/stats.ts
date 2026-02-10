@@ -103,6 +103,6 @@ Page({
   viewRoomDetail(e: any) {
     const roomId = e.currentTarget.dataset.id;
     // 这里可以跳转到结算详情页（如果后续开发的话）
-    wx.showToast({ title: '详情功能开发中', icon: 'none' });
+    wx.navigateTo({ url: `/pages/record/record?roomId=${roomId}` });
   }
 });

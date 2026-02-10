@@ -1,0 +1,412 @@
+page {
+  background-color: #f8f9fa;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 顶部导航栏 */
+.status-bar {
+  width: 100%;
+}
+
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 40rpx 20rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn,
+.settings-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  background-color: #f8fafc;
+  z-index: 100;
+}
+.icon-back {
+  width: 48rpx;
+  height: 48rpx;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e293b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 19.5L8.25 12l7.5-7.5' /%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.title-container {
+  flex: 1;
+  text-align: center;
+  margin: 0 20rpx;
+}
+
+.room-id {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 8rpx;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.status-indicator text {
+  font-size: 20rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* 主容器 */
+.main-container {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 30rpx 40rpx 200rpx;
+  min-height: calc(100vh - 160rpx);
+}
+
+/* 战绩状态卡片 */
+.room-card {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 40rpx;
+  padding: 50rpx;
+  margin-bottom: 30rpx;
+  box-sizing: border-box;
+  box-shadow: 0 20rpx 40rpx rgba(102, 126, 234, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40rpx;
+}
+
+.title-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-tiny {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2rpx;
+  margin-bottom: 8rpx;
+}
+
+.room-name {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #fff;
+}
+
+.active-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 18rpx;
+  font-weight: 800;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
+}
+
+.card-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  margin-bottom: 4rpx;
+}
+
+.stat-value {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #fff;
+}
+
+.stat-value.big-font {
+  font-size: 48rpx;
+}
+
+.font-mono {
+  font-family: "Courier New", monospace;
+}
+
+.mt-4 {
+  margin-top: 16rpx;
+}
+
+.stat-info-right {
+  text-align: right;
+}
+
+.date-text {
+  display: block;
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.creator-text {
+  display: block;
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+/* 成员列表 */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 0 10rpx;
+}
+
+.section-h {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.member-count {
+  background-color: #e2e8f0;
+  color: #475569;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 6rpx 12rpx;
+  border-radius: 12rpx;
+  margin-left: 16rpx;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.member-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 30rpx;
+}
+
+.member-card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.member-main {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-img {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  object-fit: cover;
+}
+
+.rank-medal {
+  position: absolute;
+  bottom: -4rpx;
+  right: -4rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 16rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-color-1 {
+  background-color: #ffd700;
+}
+
+.rank-color-2 {
+  background-color: #c0c0c0;
+}
+
+.rank-color-3 {
+  background-color: #cd7f32;
+}
+
+.rank-color-4,
+.rank-color-5,
+.rank-color-6 {
+  background-color: #94a3b8;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.m-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.m-desc {
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+
+.member-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.score-num {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.text-dark {
+  color: #1e293b;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.score-unit {
+  font-size: 20rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* 转账记录 */
+.section-title-row.mt-6 {
+  margin-top: 40rpx;
+}
+
+.section-h-gray {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.ledger-container {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.no-data {
+  text-align: center;
+  padding: 60rpx 0;
+  color: #94a3b8;
+}
+
+.ledger-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.ledger-item:last-child {
+  border-bottom: none;
+}
+
+.ledger-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.l-time {
+  font-size: 20rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.l-content {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.l-me,
+.l-target {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.l-arrow {
+  font-size: 20rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.l-amount {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #4caf50;
+}
+
+.safe-area-inset {
+  height: 20rpx;
+}
