@@ -1,6 +1,5 @@
 // const BASE_URL = "https://www.guoguoscore.cloud";
-// const BASE_URL = "http://101.34.246.137";
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://101.34.246.137";
 interface RequestOption {
   url: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS';

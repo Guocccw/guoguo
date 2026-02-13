@@ -136,7 +136,8 @@ Page({
     const { currentUserId } = this.data;
     if (!currentUserId) return;
 
-    const wsUrl = 'ws://localhost:3000/ws';
+    const wsUrl = 'ws://101.34.246.137/ws';
+    // const wsUrl = 'ws://localhost:3000/ws';
     wsManager.connect(wsUrl, currentUserId, roomId, {
       header: {
         'content-type': 'application/json'
