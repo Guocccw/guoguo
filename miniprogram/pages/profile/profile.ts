@@ -71,13 +71,12 @@ Page({
     wx.showLoading({ title: '保存中' });
 
     try {
-      // 使用更新用户信息接口
-      const res = await api.updateUser(userInfo.id, {
+      const updatedUser = await api.updateUser(userInfo.id, {
         nickname: tempNickname,
         avatarUrl: tempAvatarUrl
       });
 
-      wx.setStorageSync('userInfo', res.data);
+      wx.setStorageSync('userInfo', updatedUser);
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       

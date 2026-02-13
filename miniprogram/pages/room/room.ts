@@ -51,12 +51,10 @@ Page({
   async loadRoomData(roomNumber: string) {
     try {
       // 获取房间信息
-      const res = await api.getRoomByNumber(roomNumber);
-      const roomInfo = res.data || {};
+      const roomInfo = await api.getRoomByNumber(roomNumber) || {};
       this.setData({ roomInfo });
       // 获取房间成员
-      const resMembers = await api.getMembers(roomInfo.id);
-      const members = resMembers.data || [];
+      const members = await api.getMembers(roomInfo.id) || [];
       // 按分数排序（从高到低）
       const sortedMembers = members.sort((a, b) => b.score - a.score);
       console.log('排序后的成员:', sortedMembers);
@@ -101,8 +99,7 @@ Page({
       });
 
       // 获取转分记录
-      const resTransfers = await api.getTransfersByRoom(roomInfo.id);
-      const transfers = resTransfers.data || [];
+      const transfers = await api.getTransfersByRoom(roomInfo.id) || [];
       // 按时间排序（从新到旧）
       const sortedTransfers = transfers.sort((a, b) => {
         return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
@@ -137,7 +134,6 @@ Page({
     if (!currentUserId) return;
 
     const wsUrl = 'ws://101.34.246.137/ws';
-    // const wsUrl = 'ws://localhost:3000/ws';
     wsManager.connect(wsUrl, currentUserId, roomId, {
       header: {
         'content-type': 'application/json'
@@ -331,8 +327,7 @@ Page({
     if (!roomInfo.id) return;
 
     try {
-      const resMembers = await api.getMembers(roomInfo.id);
-      const members = resMembers.data || [];
+      const members = await api.getMembers(roomInfo.id) || [];
       // 按分数排序（从高到低）
       const sortedMembers = members.sort((a, b) => b.score - a.score);
       this.setData({ members: sortedMembers });

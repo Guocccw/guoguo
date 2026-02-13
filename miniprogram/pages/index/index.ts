@@ -26,12 +26,12 @@ Page({
   async loadCurrentRoom() {
     try {
       const user = await ensureLogin();
-      const res = await api.getRoomByUser(user.id);
-      const room = {
-        ...res.data,
-        createdAt: this.formatDate(res.data.createdAt || ''),
+      const room = await api.getRoomByUser(user.id);
+      const roomWithDate = {
+        ...room,
+        createdAt: this.formatDate(room.createdAt || ''),
       };
-      this.setData({ currentRoom: room });
+      this.setData({ currentRoom: roomWithDate });
     } catch {
       this.setData({ currentRoom: {} as RoomParticipation });
     }
@@ -40,7 +40,7 @@ Page({
     this.loadCurrentRoom();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 0 // “大厅”对应的索引
+        selected: 0
       })
     }
   },
@@ -74,14 +74,12 @@ Page({
       wx.showToast({ title: '加入失败', icon: 'error' });
     }
   },
-  // 创建并加入房间的辅助函数
   async createAndJoinRoom(user: any, roomName: string) {
     try {
-      const res = await api.createRoom(
+      const room = await api.createRoom(
         user.id,
         roomName || '未命名对局'
       );
-      const room = res.data;
       await api.joinRoom({
         roomNumber: room.roomNumber,
         userId: user.id,
@@ -101,7 +99,6 @@ Page({
       const user = await ensureLogin();
 
       if (user.avatarUrl == "") {
-        // 提示用户，您还没有设置头像和名称，是否前往设置？是：跳转设置页面 否：直接创建房间
         wx.showModal({
           title: '提示',
           content: '您还没有设置头像和名称，是否前往设置？',
@@ -113,7 +110,6 @@ Page({
               wx.hideLoading();
               wx.navigateTo({ url: '/pages/profile/profile' });
             } else if (res.cancel) {
-              // 直接创建房间
               wx.hideLoading();
               await this.createAndJoinRoom(user, createRoomName);
             }
@@ -121,7 +117,6 @@ Page({
         });
       } else {
         wx.hideLoading();
-        // 有头像，直接创建房间
         await this.createAndJoinRoom(user, createRoomName);
       }
     } catch {

@@ -39,8 +39,7 @@ Page({
     if (!userInfo?.id) return;
 
     try {
-      const res = await api.getUserStats(userInfo.id);
-      const stats = res.data || {};
+      const stats = await api.getUserStats(userInfo.id);
       // 根据UserStats接口，使用totalProfit代替balance
       const totalProfit = parseFloat(stats.totalProfit) || 0;
       this.setData({
@@ -76,8 +75,8 @@ Page({
     if (!userInfo?.id) return;
 
     try {
-      const res = await api.getParticipations(userInfo.id);
-      const historyList = res.data.map(item => ({
+      const participations = await api.getParticipations(userInfo.id);
+      const historyList = participations.map(item => ({
         ...item,
         createdAt: this.formatDate(item.createdAt)
       })) || [];

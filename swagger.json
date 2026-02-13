@@ -412,7 +412,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/RoomSettlementDetails"
                 }
               }
             }
@@ -451,8 +451,8 @@
     },
     "/api/transfers/create": {
       "post": {
-        "summary": "创建转分记录",
-        "tags": ["转分模块"],
+        "summary": "创建转账记录",
+        "tags": ["转账模块"],
         "requestBody": {
           "required": true,
           "content": {
@@ -474,7 +474,7 @@
                   },
                   "amount": {
                     "type": "number",
-                    "description": "转分分值"
+                    "description": "转账金额"
                   }
                 },
                 "required": ["roomId", "senderId", "receiverId", "amount"]
@@ -498,8 +498,8 @@
     },
     "/api/transfers/revert": {
       "post": {
-        "summary": "撤销转分记录",
-        "tags": ["转分模块"],
+        "summary": "撤销转账记录",
+        "tags": ["转账模块"],
         "requestBody": {
           "required": true,
           "content": {
@@ -509,7 +509,7 @@
                 "properties": {
                   "transferId": {
                     "type": "string",
-                    "description": "转分记录ID"
+                    "description": "转账记录ID"
                   },
                   "userId": {
                     "type": "string",
@@ -537,8 +537,8 @@
     },
     "/api/transfers/room/{roomId}": {
       "get": {
-        "summary": "获取房间转分历史",
-        "tags": ["转分模块"],
+        "summary": "获取房间转账历史",
+        "tags": ["转账模块"],
         "parameters": [
           {
             "name": "roomId",
@@ -569,8 +569,8 @@
     },
     "/api/transfers/{transferId}": {
       "get": {
-        "summary": "根据ID获取转分记录",
-        "tags": ["转分模块"],
+        "summary": "根据ID获取转账记录",
+        "tags": ["转账模块"],
         "parameters": [
           {
             "name": "transferId",
@@ -579,7 +579,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "转分记录ID"
+            "description": "转账记录ID"
           }
         ],
         "responses": {
@@ -710,7 +710,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "转分记录ID"
+            "description": "转账记录ID"
           },
           "roomId": {
             "type": "string",
@@ -726,12 +726,12 @@
           },
           "amount": {
             "type": "number",
-            "description": "转分分值"
+            "description": "转账金额"
           },
           "status": {
             "type": "string",
             "enum": ["completed", "reverted"],
-            "description": "转分状态"
+            "description": "转账状态"
           },
           "createdAt": {
             "type": "string",
@@ -750,15 +750,15 @@
         "properties": {
           "fromUserId": {
             "type": "string",
-            "description": "付分人ID"
+            "description": "付款人ID"
           },
           "toUserId": {
             "type": "string",
-            "description": "收分人ID"
+            "description": "收款人ID"
           },
           "amount": {
             "type": "number",
-            "description": "分值"
+            "description": "金额"
           }
         }
       },
@@ -767,15 +767,45 @@
         "properties": {
           "totalReceived": {
             "type": "number",
-            "description": "总收分分值"
+            "description": "总收款金额"
           },
           "totalSent": {
             "type": "number",
-            "description": "总付分分值"
+            "description": "总付款金额"
           },
           "balance": {
             "type": "number",
-            "description": "分数余额"
+            "description": "余额"
+          }
+        }
+      },
+      "RoomSettlementDetails": {
+        "type": "object",
+        "description": "房间结算详情",
+        "properties": {
+          "room": {
+            "$ref": "#/components/schemas/Room"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomMember"
+            },
+            "description": "房间成员列表"
+          },
+          "transfers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "description": "转账记录列表"
+          },
+          "settlement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementItem"
+            },
+            "description": "结算方案列表"
           }
         }
       }

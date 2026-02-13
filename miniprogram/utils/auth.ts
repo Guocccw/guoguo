@@ -10,8 +10,6 @@ interface User {
 // 本地缓存 key
 const USER_KEY = 'userInfo';
 export async function silentLogin(): Promise<User> {
-  // 先检查缓存
-  wx.setStorageSync(USER_KEY, null)
   const cached = wx.getStorageSync(USER_KEY);
   if (cached) return cached;
 
@@ -26,7 +24,7 @@ export async function silentLogin(): Promise<User> {
 
     // 2️⃣ 调后端接口获取用户信息
     const res = await api.login({ code });
-    const user = res.data;
+    const user = res;
     // 3️⃣ 存缓存
     wx.setStorageSync(USER_KEY, user);
 
