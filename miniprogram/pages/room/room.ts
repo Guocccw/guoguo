@@ -1,6 +1,6 @@
 import { api, Room, RoomMember, Transfer } from '../../services/api';
 import { ensureLogin, getCachedUser } from '../../utils/auth';
-
+import wsManager from '../../services/ws';
 Page({
   data: {
     // 基础数据
@@ -20,6 +20,10 @@ Page({
     showNumpad: false,
     selectedMember: {} as RoomMember,
     amount: '',
+
+    // WebSocket相关
+    wsConnected: false,
+    typingUsers: [] as Array<{ userId: string, nickname: string }>,
 
     currentUserId: ''
   },
@@ -116,12 +120,245 @@ Page({
         transfers: formattedTransfers
       });
 
+      // 连接WebSocket
+      this.connectWebSocket(roomInfo.id);
+
       // 开始定时器
       this.startTimer();
     } catch (error) {
       console.error('加载房间数据失败:', error);
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
+  },
+
+  // 连接WebSocket
+  connectWebSocket(roomId: string) {
+    const { currentUserId } = this.data;
+    if (!currentUserId) return;
+
+    const wsUrl = 'ws://localhost:3000/ws';
+    wsManager.connect(wsUrl, currentUserId, roomId, {
+      header: {
+        'content-type': 'application/json'
+      },
+      protocols: ['json'],
+      tcpNoDelay: true,
+      perMessageDeflate: true,
+      timeout: 5000,
+      forceCellularNetwork: false
+    });
+
+    wsManager.on('open', () => {
+      this.setData({ wsConnected: true });
+      wsManager.joinRoom(roomId, currentUserId);
+    });
+
+    wsManager.on('error', () => {
+      this.setData({ wsConnected: false });
+    });
+
+    wsManager.on('close', () => {
+      this.setData({ wsConnected: false });
+    });
+
+    this.registerWebSocketListeners();
+  },
+
+  // 注册WebSocket事件监听器
+  registerWebSocketListeners() {
+    // 成员状态变更
+    wsManager.on('memberStatusChanged', (data: any) => {
+      console.log('Member status changed:', data);
+      const { members } = this.data;
+      const updatedMembers = members.map(member => {
+        if (member.userId === data.userId) {
+          return { ...member, isOnline: data.isOnline };
+        }
+        return member;
+      });
+      this.setData({ members: updatedMembers });
+    });
+
+    // 分数更新
+    wsManager.on('scoreUpdated', (data: any) => {
+      console.log('Score updated:', data);
+      const { members } = this.data;
+      const updatedMembers = members.map(member => {
+        if (member.userId === data.memberId) {
+          return { ...member, score: data.score };
+        }
+        return member;
+      });
+      // 重新排序
+      const sortedMembers = updatedMembers.sort((a, b) => b.score - a.score);
+      this.setData({ members: sortedMembers });
+
+      // 更新当前用户余额
+      const currentMember = sortedMembers.find(m => m.userId === this.data.currentUserId);
+      if (currentMember) {
+        this.setData({ currentBalance: currentMember.score });
+      }
+    });
+
+    // 转账创建
+    wsManager.on('transferCreated', (data: any) => {
+      console.log('Transfer created:', data);
+      const { transfers, members } = this.data;
+      const receiver = members.find(m => m.userId === data.receiverId);
+      const newTransfer = {
+        ...data,
+        time: this.formatTime(data.createdAt || ''),
+        receiverName: receiver?.roomNickname || '未知用户'
+      };
+      const updatedTransfers = [newTransfer, ...transfers];
+      this.setData({ transfers: updatedTransfers });
+    });
+
+    // 转账撤销
+    wsManager.on('transferReverted', (data: any) => {
+      console.log('Transfer reverted:', data);
+      const { transfers } = this.data;
+      const updatedTransfers = transfers.map(transfer => {
+        if (transfer.id === data.transferId) {
+          return { ...transfer, status: 'reverted' };
+        }
+        return transfer;
+      });
+      // 强制类型断言以匹配 Transfer 的 status 字段
+      this.setData({ transfers: updatedTransfers as Transfer[] });
+    });
+
+    // 房间状态变更
+    wsManager.on('roomStatusChanged', (data: any) => {
+      console.log('Room status changed:', data);
+      const { roomInfo } = this.data;
+      this.setData({ roomInfo: { ...roomInfo, status: data.status } });
+    });
+
+    // 成员加入
+    wsManager.on('memberJoined', (data: any) => {
+      console.log('Member joined:', data);
+      // 重新加载成员列表
+      this.loadRoomMembers();
+    });
+
+    // 成员离开
+    wsManager.on('memberLeft', (data: any) => {
+      console.log('Member left:', data);
+      // 重新加载成员列表
+      this.loadRoomMembers();
+    });
+
+    // 用户输入状态
+    wsManager.on('userTyping', (data: any) => {
+      console.log('User typing:', data);
+      const { typingUsers, members } = this.data;
+      const member = members.find(m => m.userId === data.userId);
+      if (!member) return;
+
+      if (data.isTyping) {
+        // 添加到正在输入列表
+        if (!typingUsers.some(u => u.userId === data.userId)) {
+          const updatedTypingUsers = [...typingUsers, { userId: data.userId, nickname: member.roomNickname }];
+          this.setData({ typingUsers: updatedTypingUsers });
+        }
+      } else {
+        // 从正在输入列表移除
+        const updatedTypingUsers = typingUsers.filter(u => u.userId !== data.userId);
+        this.setData({ typingUsers: updatedTypingUsers });
+      }
+    });
+
+    // 消息接收
+    wsManager.on('messageReceived', (data: any) => {
+      console.log('Message received:', data);
+      // 这里可以处理实时消息，例如显示聊天消息等
+    });
+
+    // 转账请求
+    wsManager.on('transferRequestReceived', (data: any) => {
+      console.log('Transfer request received:', data);
+      // 显示转账请求弹窗
+      this.showTransferRequest(data);
+    });
+
+    // 转账请求响应
+    wsManager.on('transferRequestResponse', (data: any) => {
+      console.log('Transfer request response:', data);
+      if (data.accepted) {
+        wx.showToast({ title: '转账请求已接受', icon: 'success' });
+      } else {
+        wx.showToast({ title: '转账请求已拒绝', icon: 'none' });
+      }
+    });
+
+    // 转账完成
+    wsManager.on('transferCompleted', (data: any) => {
+      console.log('Transfer completed:', data);
+      wx.showToast({ title: '转账成功', icon: 'success' });
+    });
+
+    // 转账失败
+    wsManager.on('transferFailed', (data: any) => {
+      console.log('Transfer failed:', data);
+      wx.showToast({ title: '转账失败', icon: 'none' });
+    });
+
+    // 房间设置更新
+    wsManager.on('roomSettingsUpdated', (data: any) => {
+      console.log('Room settings updated:', data);
+      // 这里可以处理房间设置更新，例如更新房间名称、公告等
+    });
+
+    // 成员信息更新
+    wsManager.on('memberInfoUpdated', (data: any) => {
+      console.log('Member info updated:', data);
+      // 重新加载成员列表
+      this.loadRoomMembers();
+    });
+
+    // 房间信息同步
+    wsManager.on('roomInfoSynced', (data: any) => {
+      console.log('Room info synced:', data);
+      // 这里可以处理房间信息同步，例如更新成员列表、转账记录等
+    });
+  },
+
+  // 加载房间成员
+  async loadRoomMembers() {
+    const { roomInfo } = this.data;
+    if (!roomInfo.id) return;
+
+    try {
+      const resMembers = await api.getMembers(roomInfo.id);
+      const members = resMembers.data || [];
+      // 按分数排序（从高到低）
+      const sortedMembers = members.sort((a, b) => b.score - a.score);
+      this.setData({ members: sortedMembers });
+    } catch (error) {
+      console.error('加载房间成员失败:', error);
+    }
+  },
+
+  // 显示转账请求弹窗
+  showTransferRequest(data: any) {
+    const { members } = this.data;
+    const sender = members.find(m => m.userId === data.senderId);
+    if (!sender) return;
+
+    wx.showModal({
+      title: '转账请求',
+      content: `${sender.roomNickname} 向你请求转账 ${data.amount} 分`,
+      success: (res) => {
+        if (res.confirm) {
+          // 接受转账请求
+          wsManager.respondToTransferRequest(data.requestId, true);
+        } else if (res.cancel) {
+          // 拒绝转账请求
+          wsManager.respondToTransferRequest(data.requestId, false);
+        }
+      }
+    });
   },
 
   // 格式化时间
@@ -164,6 +401,8 @@ Page({
     console.log("返回按钮点击事件")
     // 清除定时器
     this.clearTimer();
+    // 断开WebSocket连接
+    wsManager.disconnect();
     wx.navigateBack({ delta: 1 });
   },
 
@@ -205,6 +444,8 @@ Page({
       showNumpad: true,
       amount: ''
     });
+    // 发送正在输入状态
+    wsManager.updateTypingStatus(this.data.roomInfo.id, true);
   },
 
   // 数字键盘点击事件
@@ -237,6 +478,9 @@ Page({
     }
 
     try {
+      // 关闭输入状态
+      wsManager.updateTypingStatus(roomInfo.id, false);
+
       // 创建转分
       await api.createTransfer({
         roomId: roomInfo.id,
@@ -244,9 +488,6 @@ Page({
         receiverId: selectedMember.userId,
         amount: parseFloat(amount)
       });
-
-      // 重新加载数据
-      this.loadRoomData(this.data.roomNumber);
 
       // 关闭键盘
       this.closeNumpad();
@@ -261,6 +502,8 @@ Page({
   // 关闭记分键盘
   closeNumpad() {
     this.setData({ showNumpad: false });
+    // 关闭输入状态
+    wsManager.updateTypingStatus(this.data.roomInfo.id, false);
   },
 
   // 阻止事件冒泡
@@ -292,6 +535,26 @@ Page({
       this.timer = null;
     }
   },
+
+  // 发送转账请求
+  sendTransferRequest() {
+    const { selectedMember, amount, roomInfo } = this.data;
+    if (!amount || parseFloat(amount) <= 0) {
+      wx.showToast({ title: '请输入有效分值', icon: 'none' });
+      return;
+    }
+
+    // 发送转账请求
+    wsManager.sendTransferRequest(
+      roomInfo.id,
+      selectedMember.userId,
+      parseFloat(amount)
+    );
+
+    this.closeNumpad();
+    wx.showToast({ title: '转账请求已发送', icon: 'success' });
+  },
+
   async onExitRoom() {
     try {
       // 退出房间
@@ -299,6 +562,8 @@ Page({
         roomId: this.data.roomInfo.id,
         userId: this.data.currentUserId
       });
+      // 断开WebSocket连接
+      wsManager.disconnect();
       wx.showToast({ title: '退出房间成功', icon: 'success' });
       this.goBack();
     } catch (error) {
@@ -325,6 +590,8 @@ Page({
         success: () => {
           // 清除定时器
           this.clearTimer();
+          // 断开WebSocket连接
+          wsManager.disconnect();
           // 延迟返回，让用户看到成功提示
           setTimeout(() => {
             wx.navigateBack();
@@ -337,8 +604,10 @@ Page({
     }
   },
 
-  // 页面卸载时清除定时器
+  // 页面卸载时清除定时器和断开WebSocket连接
   onUnload() {
     this.clearTimer();
+    wsManager.disconnect();
   }
 });
+
