@@ -133,7 +133,7 @@ Page({
     const { currentUserId } = this.data;
     if (!currentUserId) return;
 
-    const wsUrl = 'ws://101.34.246.137/ws';
+    const wsUrl = "wss://guoguoscore.cloud/ws";
     wsManager.connect(wsUrl, currentUserId, roomId, {
       header: {
         'content-type': 'application/json'
@@ -228,8 +228,30 @@ Page({
     // 房间状态变更
     wsManager.on('roomStatusChanged', (data: any) => {
       console.log('Room status changed:', data);
-      const { roomInfo } = this.data;
-      this.setData({ roomInfo: { ...roomInfo, status: data.status } });
+      try {
+        if (data.status == 'settled') {
+          // 加载结算详情
+          // this.loadSettlementDetails();
+          console.log('房间已结算');
+          wx.showToast({
+            title: '结算成功',
+            icon: 'success',
+            duration: 1500,
+            success: () => {
+              // 清除定时器
+              this.clearTimer();
+              // 断开WebSocket连接
+              wsManager.disconnect();
+              // 延迟返回，让用户看到成功提示
+              setTimeout(() => {
+                wx.navigateBack();
+              }, 1500);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('解析房间状态变更数据失败:', error);
+      }
     });
 
     // 成员加入
@@ -432,7 +454,7 @@ Page({
     // 需要检查是否是当前用户
     const member = event.currentTarget.dataset.member;
     if (member.userId === this.data.currentUserId) {
-      wx.showToast({ title: '不能转分给自己', icon: 'none' });
+      // wx.showToast({ title: '不能转分给自己', icon: 'none' });
       return;
     }
     this.setData({
@@ -579,21 +601,21 @@ Page({
         userId: currentUserId
       });
 
-      wx.showToast({
-        title: '结算成功',
-        icon: 'success',
-        duration: 1500,
-        success: () => {
-          // 清除定时器
-          this.clearTimer();
-          // 断开WebSocket连接
-          wsManager.disconnect();
-          // 延迟返回，让用户看到成功提示
-          setTimeout(() => {
-            wx.navigateBack();
-          }, 1500);
-        }
-      });
+      // wx.showToast({
+      //   title: '结算成功',
+      //   icon: 'success',
+      //   duration: 1500,
+      //   success: () => {
+      //     // 清除定时器
+      //     this.clearTimer();
+      //     // 断开WebSocket连接
+      //     wsManager.disconnect();
+      //     // 延迟返回，让用户看到成功提示
+      //     setTimeout(() => {
+      //       wx.navigateBack();
+      //     }, 1500);
+      //   }
+      // });
     } catch (error) {
       console.error('结算失败:', error);
       wx.showToast({ title: '结算失败', icon: 'none' });

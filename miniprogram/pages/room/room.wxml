@@ -68,9 +68,9 @@
           <image src="{{item.roomAvatar}}" class="avatar-img"></image>
           <view class="rank-medal rank-color-{{index + 1}}">{{index + 1}}</view>
         </view>
-        <view class="member-info">
+        <view class="member-info {{item.isOnline ? 'text-green' : 'text-gray'}}">
           <text class="m-name">{{item.roomNickname}}</text>
-          <text class="m-desc"></text>
+          <text class="m-desc ">{{item.isOnline ? '在线' : '离线'}}</text>
         </view>
       </view>
       <view class="member-score">

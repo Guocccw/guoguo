@@ -70,6 +70,12 @@ export interface RoomSettlementDetails {
   members: RoomMember[];
   transfers: Transfer[];
   settlement: SettlementItem[];
+  roomDetails: {
+    totalDuration: string;
+    createdAt: string;
+    creator: { id: string, nickname: string, avatarUrl: string };
+    creatorScore: string;
+  }
 }
 
 export interface UserStats {

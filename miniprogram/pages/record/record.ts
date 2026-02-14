@@ -9,13 +9,13 @@ Page({
     elapsedTime: '00:00:00',
     roomDate: '',
     creatorName: '',
-    members: [],
-    transfers: []
+    members: [] as any[],
+    transfers: [] as any[]
   },
 
   async onLoad(options) {
     const { roomId } = options;
-    
+
     if (!roomId) {
       wx.showToast({ title: '房间ID不能为空', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
@@ -31,11 +31,16 @@ Page({
   async loadSettlementDetails(roomId: string) {
     try {
       wx.showLoading({ title: '加载中...' });
-      
+
       const data = await api.getSettlementDetails(roomId);
-      const { room, members, transfers, settlement } = data;
+      const { room, roomDetails, members, transfers, settlement } = data;
 
       const memberMap = new Map(members.map(m => [m.userId, m]));
+      if (!room.creatorId) {
+        wx.showToast({ title: '房间不存在', icon: 'none' });
+        setTimeout(() => wx.navigateBack(), 1500);
+        return;
+      }
       const creator = memberMap.get(room.creatorId);
 
       const formattedTransfers = transfers.map(t => {
@@ -49,12 +54,13 @@ Page({
           amount: t.amount
         };
       });
-
+      console.log(roomDetails)
       this.setData({
         roomNumber: room.roomNumber,
         roomInfo: { name: room.name },
         roomDate: this.formatDate(room.createdAt),
         creatorName: creator?.roomNickname || '未知用户',
+        elapsedTime: this.calcElapsedTime(roomDetails.totalDuration || ''),
         members: members.map(m => ({
           userId: m.userId,
           roomAvatar: m.roomAvatar,
@@ -70,6 +76,16 @@ Page({
     } finally {
       wx.hideLoading();
     }
+  },
+  calcElapsedTime(durationStr: string): string {
+    if (!durationStr) return '00:00:00';
+    const durationMs = parseInt(durationStr, 10);
+    const diffMs = durationMs;
+    const diffSec = Math.floor(diffMs / 1000);
+    const hours = Math.floor(diffSec / 3600);
+    const minutes = Math.floor((diffSec % 3600) / 60);
+    const seconds = diffSec % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   },
 
   formatTime(dateStr?: string): string {
@@ -96,7 +112,7 @@ Page({
     wx.navigateBack();
   },
 
-  onMemberTap(e) {
+  onMemberTap(e: any) {
     const member = e.currentTarget.dataset.member;
     console.log('点击成员:', member);
   }

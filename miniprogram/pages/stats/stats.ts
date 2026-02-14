@@ -40,11 +40,18 @@ Page({
 
     try {
       const stats = await api.getUserStats(userInfo.id);
-      // 根据UserStats接口，使用totalProfit代替balance
-      const totalProfit = parseFloat(stats.totalProfit) || 0;
+      // 根据UserStats接口，使用totalProfit是一个计算的式子 例如 0-5, 1-2+2-3 等
+      function calcExpression(expr: string): number {
+        return expr
+          .replace(/\s+/g, '')          // 去空格
+          .match(/[+-]?\d+/g)!          // 拆成 [+1, -2, +3]
+          .map(Number)
+          .reduce((sum, n) => sum + n, 0)
+      }
+      const totalProfit = stats.totalProfit == '0' ? 0 : calcExpression(stats.totalProfit);
       this.setData({
         stats: stats,
-        absBalance: Math.abs(totalProfit).toFixed(1)
+        absBalance: totalProfit.toFixed(2)
       });
     } catch (e) {
       console.error('获取统计失败', e);
@@ -70,10 +77,8 @@ Page({
    * 加载对局历史
    */
   async loadHistory() {
-    console.log('loadHistory');
     const { userInfo } = this.data;
     if (!userInfo?.id) return;
-
     try {
       const participations = await api.getParticipations(userInfo.id);
       const historyList = participations.map(item => ({
@@ -100,7 +105,7 @@ Page({
   },
 
   viewRoomDetail(e: any) {
-    const roomId = e.currentTarget.dataset.id;
+    const roomId = e.currentTarget.dataset.item.roomId;
     // 这里可以跳转到结算详情页（如果后续开发的话）
     wx.navigateTo({ url: `/pages/record/record?roomId=${roomId}` });
   }

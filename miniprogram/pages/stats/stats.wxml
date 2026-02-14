@@ -2,9 +2,6 @@
 <!-- 顶部导航栏 -->
 <view class="nav-header">
   <text class="nav-title">我的战绩</text>
-  <view class="settings-btn" bindtap="goToProfile">
-    <view class="icon icon-user-settings"></view>
-  </view>
 </view>
 <scroll-view scroll-y class="main-container hide-scrollbar">
   <!-- 1. 个人数据大看板 -->
@@ -22,7 +19,6 @@
       <view class="balance-main">
         <text class="balance-label">累计总盈亏</text>
         <view class="balance-value-row">
-          <text class="balance-symbol">{{absBalance >= 0 ? '' : '-'}}</text>
           <text class="balance-number">{{absBalance}}</text>
         </view>
       </view>
@@ -43,14 +39,14 @@
         <text>还没有参与过任何对局哦</text>
       </view>
       <!-- 记录条目 -->
-      <view class="history-card" wx:for="{{historyList}}" wx:key="id" bindtap="viewRoomDetail" data-id="{{item.id}}">
+      <view class="history-card" wx:for="{{historyList}}" wx:key="id" bindtap="viewRoomDetail"  data-item="{{item}}">
         <view class="h-left">
           <view class="h-icon {{item.score >= 0 ? 'bg-green-light' : 'bg-red-light'}}">
             <view class="icon {{item.score >= 0 ? 'icon-trending-up' : 'icon-trending-down'}}"></view>
           </view>
           <view class="h-info">
             <text class="h-name">{{item.roomName}} #{{item.roomNumber}}</text>
-            <text class="h-date">{{item.createdAt}} · {{item.status === 'COMPLETED' ? '结算完成' : '未结算'}}</text>
+            <text class="h-date">{{item.createdAt}} </text>
           </view>
         </view>
         <view class="h-right">

@@ -1,5 +1,5 @@
 // request.ts
-const BASE_URL = 'http://101.34.246.137';
+const BASE_URL = 'https://guoguoscore.cloud';
 
 interface ApiResponse<T> {
   code: number;

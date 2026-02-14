@@ -355,6 +355,14 @@ page {
   flex-direction: column;
 }
 
+.member-info.text-green {
+  filter: brightness(1.2) saturate(1.5);
+}
+
+.member-info.text-gray {
+  filter: brightness(0.8) saturate(0.5);
+}
+
 .m-name {
   font-size: 28rpx;
   font-weight: 800;
