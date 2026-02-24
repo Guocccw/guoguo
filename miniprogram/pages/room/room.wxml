@@ -41,10 +41,7 @@
         <view class="stat-info-right text-right">
           <text class="date-text">{{roomDate || ''}}</text>
           <text class="creator-text">创建者: {{creatorName || ''}}</text>
-          <!-- <view class="invite-action" bindtap="onInvite">
-            <view class="icon icon-share-white"></view>
-            <text>邀请好友</text>
-          </view> -->
+          <!-- <button class="invite-action" open-type="share" type="primary"><view class="icon icon-share-white"></view>邀请好友</button> -->
         </view>
       </view>
     </view>
@@ -56,10 +53,10 @@
     <text class="section-h">成员动态</text>
     <view class="member-count">{{members.length}}</view>
     <view class="flex-spacer"></view>
-    <view class="invite-mini-btn" bindtap="onInvite">
+    <button open-type="share" class="invite-mini-btn" >
       <view class="icon icon-user-plus"></view>
       <text>邀好友</text>
-    </view>
+    </button>
   </view>
   <view class="member-grid">
     <view class="member-card-item" wx:for="{{members}}" wx:key="userId" bindtap="onMemberTap" data-member="{{item}}">
@@ -95,7 +92,7 @@
       <view class="ledger-left">
         <text class="l-time">{{item.time}}</text>
         <view class="l-content">
-          <text class="l-me">我</text>
+          <text class="l-me">{{item.senderName}}</text>
           <text class="l-arrow">→</text>
           <text class="l-target">{{item.receiverName}}</text>
         </view>
@@ -107,7 +104,7 @@
 </scroll-view>
 <!-- 底部固定操作栏 -->
 <view class="footer-fixed">
-  <button class="primary-action-btn1" bindtap="onExitRoom">退出房间</button>
+  <button class="primary-action-btn1" bindtap="onDismissRoom">解散房间</button>
   <button class="primary-action-btn2" bindtap="onSettleTap">一键结算并退出</button>
 </view>
 <!-- 记分键盘抽屉 -->

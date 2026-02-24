@@ -5,7 +5,7 @@ Page({
     statusBarHeight: 0,
     roomNumber: '',
     roomInfo: {},
-    currentBalance: 0,
+    currentBalance: '',
     elapsedTime: '00:00:00',
     roomDate: '',
     creatorName: '',
@@ -67,6 +67,7 @@ Page({
           roomNickname: m.roomNickname,
           score: m.score
         })),
+        currentBalance: roomDetails.creatorScore + "",
         transfers: formattedTransfers
       });
 

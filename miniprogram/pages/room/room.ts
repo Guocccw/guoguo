@@ -109,6 +109,7 @@ Page({
         const receiver = members.find(m => m.userId === transfer.receiverId);
         return {
           ...transfer,
+          senderName: members.find(m => m.userId === transfer.senderId)?.roomNickname || '未知用户',
           time: this.formatTime(transfer.createdAt || ''),
           receiverName: receiver?.roomNickname || '未知用户'
         };
@@ -416,15 +417,9 @@ Page({
 
   // 返回按钮点击事件
   goBack() {
-    console.log("返回按钮点击事件")
-    // 清除定时器
-    this.clearTimer();
-    // 断开WebSocket连接
-    wsManager.disconnect();
-    wx.navigateBack({ delta: 1 });
+    this.onExitRoom();
   },
 
-  // 邀请好友
   // 分享按钮或右上角菜单触发
   onShareAppMessage() {
     const { roomInfo } = this.data;
@@ -437,16 +432,8 @@ Page({
     return {
       title: `快来加入我的房间 ${roomNumber}！`,
       path: `/pages/room/room?roomNumber=${roomNumber}`,
-      imageUrl: user.avatarUrl || '', // 分享图（网络图或本地图）
+      imageUrl: "/images/share-cover.png", // 分享图（网络图或本地图）
     };
-  },
-
-  // 点击“邀请好友”按钮也可以主动触发
-  onInvite() {
-    wx.showShareMenu({
-      withShareTicket: true,  // 获取群信息（可选）
-      menus: ['shareAppMessage']
-    });
   },
 
   // 成员头像点击事件
@@ -572,7 +559,9 @@ Page({
     this.closeNumpad();
     wx.showToast({ title: '转账请求已发送', icon: 'success' });
   },
-
+  async onDismissRoom() {
+    wx.showToast({ title: '解散房间成功', icon: 'success' });
+  },
   async onExitRoom() {
     try {
       // 退出房间
@@ -583,7 +572,11 @@ Page({
       // 断开WebSocket连接
       wsManager.disconnect();
       wx.showToast({ title: '退出房间成功', icon: 'success' });
-      this.goBack();
+      // // 清除定时器
+      this.clearTimer();
+      // 断开WebSocket连接
+      wsManager.disconnect();
+      wx.switchTab({ url: '/pages/index/index' });
     } catch (error) {
       console.error('退出房间失败:', error);
       wx.showToast({ title: '退出房间失败', icon: 'none' });
