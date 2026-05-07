@@ -3,7 +3,7 @@
 <view class="nav-header">
   <text class="nav-title">我的战绩</text>
 </view>
-<scroll-view scroll-y class="main-container hide-scrollbar">
+<scroll-view scroll-y class="main-container hide-scrollbar" enhanced>
   <!-- 1. 个人数据大看板 -->
   <view class="stats-master-card">
     <view class="card-inner">
@@ -56,6 +56,13 @@
           <view class="icon icon-chevron-right-gray ml-4"></view>
         </view>
       </view>
+      <button
+        class="load-more-btn"
+        wx:if="{{hasMoreHistory}}"
+        bindtap="loadAllHistory"
+      >
+        查看更多
+      </button>
     </view>
   </view>
   <view class="safe-area-bottom"></view>

@@ -358,6 +358,89 @@ page {
   color: #94a3b8;
 }
 
+.no-data.compact {
+  padding: 30rpx 0;
+  font-size: 24rpx;
+}
+
+.settlement-container {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 20rpx 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.settlement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.settlement-item:last-child {
+  border-bottom: none;
+}
+
+.settlement-route {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.settlement-name {
+  max-width: 190rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 26rpx;
+  font-weight: 800;
+}
+
+.settlement-name.payer {
+  color: #ef4444;
+}
+
+.settlement-name.receiver {
+  color: #16a34a;
+}
+
+.settlement-arrow {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #64748b;
+  font-size: 24rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settlement-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.settlement-num {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #1e293b;
+}
+
+.settlement-unit {
+  font-size: 20rpx;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .ledger-item {
   display: flex;
   justify-content: space-between;

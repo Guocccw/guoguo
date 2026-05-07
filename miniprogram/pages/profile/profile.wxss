@@ -49,6 +49,18 @@ page {
   margin-bottom: 24rpx;
 }
 
+.avatar-button {
+  padding: 0;
+  background: transparent;
+  border: none;
+  line-height: normal;
+  overflow: visible;
+}
+
+.avatar-button::after {
+  display: none;
+}
+
 .main-avatar {
   width: 100%;
   height: 100%;

@@ -14,9 +14,13 @@
 <scroll-view scroll-y class="main-container hide-scrollbar">
   <!-- 头像修改区 -->
   <view class="avatar-section">
-    <view class="avatar-wrapper" >
-      <image class="main-avatar" src="{{tempAvatarUrl || userInfo.avatarUrl}}"></image>
-    </view>
+    <button class="avatar-wrapper avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" hover-class="none">
+      <image class="main-avatar" src="{{tempAvatarUrl || userInfo.avatarUrl || defaultAvatarUrl}}"></image>
+      <view class="camera-icon">
+        <view class="icon-camera"></view>
+      </view>
+    </button>
+    <text class="avatar-hint">点击选择微信头像</text>
   </view>
 
   <!-- 资料卡片 -->
@@ -25,7 +29,7 @@
     <view class="input-group">
       <text class="input-label">用户昵称</text>
       <view class="input-wrapper">
-        <input class="nickname-input" type="text" value="{{tempNickname}}" placeholder="请输入昵称" bindinput="onNicknameInput" placeholder-class="placeholder-style" />
+        <input class="nickname-input" type="nickname" value="{{tempNickname}}" placeholder="请输入昵称" bindinput="onNicknameInput" placeholder-class="placeholder-style" />
         <view class="icon-clear" wx:if="{{tempNickname}}" bindtap="onClearNickname"></view>
       </view>
     </view>

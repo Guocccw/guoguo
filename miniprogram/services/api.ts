@@ -150,8 +150,12 @@ export const api = {
     request<RoomSettlementDetails>({ url: `/api/settlements/room/${roomId}/details`, method: 'GET' }),
 
   // 获取用户参与的房间列表
-  getParticipations: (userId: string) =>
-    request<RoomParticipation[]>({ url: `/api/users/${userId}/participations`, method: 'GET' }),
+  getParticipations: (userId: string, params?: { limit?: number }) =>
+    request<RoomParticipation[]>({
+      url: `/api/users/${userId}/participations`,
+      method: 'GET',
+      data: params
+    }),
 
   // 获取用户统计信息
   getUserStats: (userId: string) =>

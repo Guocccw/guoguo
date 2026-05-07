@@ -1,6 +1,7 @@
 // pages/index/index.ts
 import { api } from '../../services/api';
 import { silentLogin, ensureLogin } from '../../utils/auth';
+import { formatDefaultRoomName } from '../../utils/roomName';
 import { RoomParticipation } from '../../services/api';
 Page({
   data: {
@@ -78,7 +79,7 @@ Page({
     try {
       const room = await api.createRoom(
         user.id,
-        roomName || '未命名对局'
+        roomName.trim() || formatDefaultRoomName()
       );
       await api.joinRoom({
         roomNumber: room.roomNumber,

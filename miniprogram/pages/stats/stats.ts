@@ -1,4 +1,5 @@
 import { api } from '../../services/api';
+const RECENT_HISTORY_LIMIT = 5;
 
 Page({
   data: {
@@ -6,7 +7,9 @@ Page({
     userInfo: {} as any,
     stats: {} as any,
     absBalance: '0',
-    historyList: [] as any[]
+    historyList: [] as any[],
+    historyLoading: false,
+    hasMoreHistory: false
   },
 
   onLoad() {
@@ -78,19 +81,42 @@ Page({
    */
   async loadHistory() {
     const { userInfo } = this.data;
-    if (!userInfo?.id) return;
+    if (!userInfo?.id || this.data.historyLoading) return;
+
+    this.setData({ historyLoading: true });
+
     try {
-      const participations = await api.getParticipations(userInfo.id);
-      const historyList = participations.map(item => ({
+      const participations = await api.getParticipations(
+        userInfo.id,
+        { limit: RECENT_HISTORY_LIMIT }
+      );
+      const sortedParticipations = [...(participations || [])].sort((a, b) => {
+        const aTime = new Date(a.room?.createdAt || a.createdAt).getTime();
+        const bTime = new Date(b.room?.createdAt || b.createdAt).getTime();
+        return bTime - aTime;
+      });
+      const displayedParticipations = sortedParticipations.slice(0, RECENT_HISTORY_LIMIT);
+      const historyList = displayedParticipations.map(item => ({
         ...item,
-        createdAt: this.formatDate(item.createdAt)
-      })) || [];
-      this.setData({ historyList: historyList });
+        roomName: (item as any).roomName || item.room?.name,
+        roomNumber: (item as any).roomNumber || item.room?.roomNumber || '',
+        createdAt: this.formatDate(item.room?.createdAt || item.createdAt)
+      }));
+      this.setData({
+        historyList,
+        hasMoreHistory: sortedParticipations.length >= RECENT_HISTORY_LIMIT
+      });
     } catch (e) {
       console.error('获取对局历史失败', e);
       // 出错时确保显示空数组
-      this.setData({ historyList: [] });
+      this.setData({ historyList: [], hasMoreHistory: false });
+    } finally {
+      this.setData({ historyLoading: false });
     }
+  },
+
+  loadAllHistory() {
+    wx.navigateTo({ url: '/pages/history/history' });
   },
 
   switchTab(e: any) {

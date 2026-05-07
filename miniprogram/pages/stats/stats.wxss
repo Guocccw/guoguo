@@ -11,6 +11,14 @@ page {
   display: none;
 }
 
+.main-container {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* 1. 导航栏 */
 .nav-header {
   height: 44px;
@@ -217,6 +225,27 @@ page {
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   border: 1px solid #f8fafc;
+}
+
+.load-more-btn {
+  height: 44px;
+  line-height: 44px;
+  margin: 8px 0 0;
+  padding: 0;
+  border-radius: 22px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.load-more-btn::after {
+  border: none;
+}
+
+.load-more-btn[disabled] {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
 .h-left {

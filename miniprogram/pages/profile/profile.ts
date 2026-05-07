@@ -7,6 +7,7 @@ Page({
     tempNickname: '',
     tempAvatarUrl: '',
     selectedPreset: '',
+    defaultAvatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guo',
     presetAvatars: [
       'https://api.dicebear.com/7.x/avataaars/svg?seed=happy',
       'https://api.dicebear.com/7.x/avataaars/svg?seed=Melon',
@@ -34,17 +35,33 @@ Page({
   initUserInfo() {
     const windowInfo = (wx as any).getWindowInfo();
     const userInfo = wx.getStorageSync('userInfo');
+    const avatarUrl = userInfo?.avatarUrl || '';
     
     this.setData({ 
       statusBarHeight: windowInfo.statusBarHeight,
       userInfo: userInfo,
       tempNickname: userInfo?.nickname || '',
-      tempAvatarUrl: userInfo?.avatarUrl || ''
+      tempAvatarUrl: avatarUrl,
+      selectedPreset: this.data.presetAvatars.includes(avatarUrl) ? avatarUrl : ''
     });
   },
 
   onNicknameInput(e: any) {
     this.setData({ tempNickname: e.detail.value });
+  },
+
+  onChooseAvatar(e: any) {
+    const avatarUrl = e.detail.avatarUrl;
+
+    if (!avatarUrl) {
+      wx.showToast({ title: '未选择头像', icon: 'none' });
+      return;
+    }
+
+    this.setData({
+      tempAvatarUrl: avatarUrl,
+      selectedPreset: ''
+    });
   },
 
   onClearNickname() {
@@ -62,8 +79,9 @@ Page({
 
   async onSaveProfile() {
     const { tempNickname, tempAvatarUrl, userInfo } = this.data;
+    const nickname = tempNickname.trim();
     
-    if (!tempNickname.trim()) {
+    if (!nickname) {
       wx.showToast({ title: '昵称不能为空', icon: 'none' });
       return;
     }
@@ -72,7 +90,7 @@ Page({
 
     try {
       const updatedUser = await api.updateUser(userInfo.id, {
-        nickname: tempNickname,
+        nickname,
         avatarUrl: tempAvatarUrl
       });
 

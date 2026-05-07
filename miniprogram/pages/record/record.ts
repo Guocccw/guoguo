@@ -1,5 +1,12 @@
 import { api } from '../../services/api';
 
+interface SettlementTransfer {
+  id: string;
+  fromName: string;
+  toName: string;
+  amount: number;
+}
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -10,7 +17,8 @@ Page({
     roomDate: '',
     creatorName: '',
     members: [] as any[],
-    transfers: [] as any[]
+    transfers: [] as any[],
+    settlementTransfers: [] as SettlementTransfer[]
   },
 
   async onLoad(options) {
@@ -33,7 +41,7 @@ Page({
       wx.showLoading({ title: '加载中...' });
 
       const data = await api.getSettlementDetails(roomId);
-      const { room, roomDetails, members, transfers, settlement } = data;
+      const { room, roomDetails, members, transfers } = data;
 
       const memberMap = new Map(members.map(m => [m.userId, m]));
       if (!room.creatorId) {
@@ -54,21 +62,24 @@ Page({
           amount: t.amount
         };
       });
-      console.log(roomDetails)
+      const formattedMembers = members.map(m => ({
+        userId: m.userId,
+        roomAvatar: m.roomAvatar,
+        roomNickname: m.roomNickname,
+        score: m.score
+      }));
+      const settlementTransfers = this.calculateSettlementTransfers(formattedMembers);
+
       this.setData({
         roomNumber: room.roomNumber,
         roomInfo: { name: room.name },
         roomDate: this.formatDate(room.createdAt),
         creatorName: creator?.roomNickname || '未知用户',
         elapsedTime: this.calcElapsedTime(roomDetails.totalDuration || ''),
-        members: members.map(m => ({
-          userId: m.userId,
-          roomAvatar: m.roomAvatar,
-          roomNickname: m.roomNickname,
-          score: m.score
-        })),
+        members: formattedMembers,
         currentBalance: roomDetails.creatorScore + "",
-        transfers: formattedTransfers
+        transfers: formattedTransfers,
+        settlementTransfers
       });
 
     } catch (error) {
@@ -107,6 +118,53 @@ Page({
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day} ${hours}:${minutes}`;
+  },
+
+  calculateSettlementTransfers(members: Array<{ userId: string; roomNickname: string; score: number }>): SettlementTransfer[] {
+    const debtors = members
+      .filter(member => member.score < 0)
+      .map(member => ({
+        userId: member.userId,
+        name: member.roomNickname || '未知用户',
+        amount: Math.abs(member.score)
+      }))
+      .sort((a, b) => a.amount - b.amount);
+
+    const creditors = members
+      .filter(member => member.score > 0)
+      .map(member => ({
+        userId: member.userId,
+        name: member.roomNickname || '未知用户',
+        amount: member.score
+      }))
+      .sort((a, b) => a.amount - b.amount);
+
+    const result: SettlementTransfer[] = [];
+    let debtorIndex = 0;
+    let creditorIndex = 0;
+
+    while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
+      const debtor = debtors[debtorIndex];
+      const creditor = creditors[creditorIndex];
+      const amount = Math.min(debtor.amount, creditor.amount);
+
+      if (amount > 0) {
+        result.push({
+          id: `${debtor.userId}-${creditor.userId}-${result.length}`,
+          fromName: debtor.name,
+          toName: creditor.name,
+          amount
+        });
+      }
+
+      debtor.amount -= amount;
+      creditor.amount -= amount;
+
+      if (debtor.amount === 0) debtorIndex += 1;
+      if (creditor.amount === 0) creditorIndex += 1;
+    }
+
+    return result;
   },
 
   goBack() {

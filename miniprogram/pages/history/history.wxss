@@ -1,0 +1,204 @@
+page {
+  background-color: #f8fafc;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.status-bar {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.nav-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.back-btn,
+.nav-placeholder {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn {
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.title-container {
+  flex: 1;
+  text-align: center;
+}
+
+.page-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 900;
+  color: #1e293b;
+}
+
+.page-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.main-container {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 20px 0;
+}
+
+.history-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f8fafc;
+}
+
+.h-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.h-info {
+  min-width: 0;
+}
+
+.h-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bg-green-light {
+  background: #f0fdf4;
+}
+
+.bg-red-light {
+  background: #fef2f2;
+}
+
+.h-name {
+  font-size: 14px;
+  font-weight: 900;
+  color: #1e293b;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.h-date {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.h-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.h-profit {
+  font-size: 18px;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.text-green {
+  color: #4caf50;
+}
+
+.text-red {
+  color: #f87171;
+}
+
+.ml-4 {
+  margin-left: 16px;
+}
+
+.no-data {
+  min-height: 50vh;
+  font-size: 14px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50rpx;
+}
+
+.safe-area-bottom {
+  height: 32px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon-back {
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e293b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 19.5L8.25 12l7.5-7.5' /%3E%3C/svg%3E");
+}
+
+.icon-trending-up {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234caf50' stroke-width='2.5'%3E%3Cpath d='M2.25 18L9 11.25l4.5 4.5L21.75 7M21.75 7H17.25M21.75 7v4.5' /%3E%3C/svg%3E");
+}
+
+.icon-trending-down {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f87171' stroke-width='2.5'%3E%3Cpath d='M2.25 6L9 12.75l4.5-4.5L21.75 17M21.75 17h-4.5M21.75 17v-4.5' /%3E%3C/svg%3E");
+}
+
+.icon-chevron-right-gray {
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23cbd5e1' stroke-width='3'%3E%3Cpath d='M8.25 4.5l7.5 7.5-7.5 7.5' /%3E%3C/svg%3E");
+}
+
+.icon-empty-box {
+  width: 80px;
+  height: 80px;
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='gray' stroke-width='1'%3E%3Cpath d='M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9' /%3E%3C/svg%3E");
+}

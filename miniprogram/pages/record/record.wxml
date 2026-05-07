@@ -70,6 +70,27 @@
       </view>
     </view>
   </view>
+  <!-- 结算建议 -->
+  <view class="section-title-row mt-6">
+    <view class="icon icon-transfer-gray mr-2"></view>
+    <text class="section-h-gray">结算建议</text>
+  </view>
+  <view class="settlement-container">
+    <view class="no-data compact" wx:if="{{settlementTransfers.length === 0}}">
+      <text>无需转分</text>
+    </view>
+    <view class="settlement-item" wx:for="{{settlementTransfers}}" wx:key="id">
+      <view class="settlement-route">
+        <text class="settlement-name payer">{{item.fromName}}</text>
+        <view class="settlement-arrow">→</view>
+        <text class="settlement-name receiver">{{item.toName}}</text>
+      </view>
+      <view class="settlement-amount">
+        <text class="settlement-num">{{item.amount}}</text>
+        <text class="settlement-unit">积分</text>
+      </view>
+    </view>
+  </view>
   <!-- 转账记录 -->
   <view class="section-title-row mt-6">
     <view class="icon icon-transfer-gray mr-2"></view>
