@@ -490,6 +490,26 @@ page {
   color: #4caf50;
 }
 
+.ledger-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.l-amount.is-reverted {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.reverted-label {
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+  background-color: #f1f5f9;
+  color: #64748b;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
 .safe-area-inset {
   height: 20rpx;
 }

@@ -1,6 +1,6 @@
 // pages/index/index.ts
 import { api } from '../../services/api';
-import { silentLogin, ensureLogin } from '../../utils/auth';
+import { refreshCachedUser } from '../../utils/auth';
 import { formatDefaultRoomName } from '../../utils/roomName';
 import { RoomParticipation } from '../../services/api';
 Page({
@@ -13,8 +13,6 @@ Page({
   onLoad() {
     const windowInfo = (wx as any).getWindowInfo();
     this.setData({ statusBarHeight: windowInfo.statusBarHeight });
-    silentLogin();
-
   },
   formatDate(dateString: string) {
     if (!dateString) return '';
@@ -26,7 +24,7 @@ Page({
   },
   async loadCurrentRoom() {
     try {
-      const user = await ensureLogin();
+      const user = await refreshCachedUser();
       const room = await api.getRoomByUser(user.id);
       const roomWithDate = {
         ...room,
@@ -61,7 +59,7 @@ Page({
     if (!joinRoomNumber) return;
     wx.showLoading({ title: '加入中' });
     try {
-      const user = await ensureLogin();
+      const user = await refreshCachedUser();
       await api.joinRoom({
         roomNumber: joinRoomNumber,
         userId: user.id,
@@ -97,7 +95,7 @@ Page({
     const { createRoomName } = this.data;
     wx.showLoading({ title: '创建中' });
     try {
-      const user = await ensureLogin();
+      const user = await refreshCachedUser();
 
       if (user.avatarUrl == "") {
         wx.showModal({

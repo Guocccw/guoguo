@@ -288,8 +288,33 @@ class WebSocketManager {
     const requestId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     this.send({
       type: 'transferRequest',
-      data: { roomId, senderId: this.currentUserId, receiverId, amount, requestId }
+      data: { requestType: 'transfer', roomId, senderId: this.currentUserId, receiverId, amount, requestId }
     });
+    return requestId;
+  }
+
+  /**
+   * 发送撤销转账请求
+   * @param roomId 房间ID
+   * @param receiverId 需要同意撤销的对方用户ID
+   * @param transferId 转账记录ID
+   * @param amount 金额
+   */
+  sendTransferRevertRequest(roomId: string, receiverId: string, transferId: string, amount: number) {
+    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    this.send({
+      type: 'transferRequest',
+      data: {
+        requestType: 'revertTransfer',
+        roomId,
+        senderId: this.currentUserId,
+        receiverId,
+        transferId,
+        amount,
+        requestId
+      }
+    });
+    return requestId;
   }
 
   /**

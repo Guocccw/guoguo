@@ -1,4 +1,5 @@
 import { api } from '../../services/api';
+import { refreshCachedUser } from '../../utils/auth';
 
 Page({
   data: {
@@ -25,16 +26,17 @@ Page({
   },
 
   onLoad() {
-    this.initUserInfo();
+    const windowInfo = (wx as any).getWindowInfo();
+    this.setData({ statusBarHeight: windowInfo.statusBarHeight });
   },
 
   onShow() {
     this.initUserInfo();
   },
 
-  initUserInfo() {
+  async initUserInfo() {
     const windowInfo = (wx as any).getWindowInfo();
-    const userInfo = wx.getStorageSync('userInfo');
+    const userInfo = await refreshCachedUser();
     const avatarUrl = userInfo?.avatarUrl || '';
     
     this.setData({ 

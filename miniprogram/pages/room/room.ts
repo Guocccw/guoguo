@@ -32,6 +32,7 @@ Page({
   timer: null as any,
   wsListenersRegistered: false,
   settlementRedirecting: false,
+  pendingRevertRequests: {} as Record<string, string>,
 
   onLoad(options: any) {
     // 获取状态栏高度
@@ -303,6 +304,11 @@ Page({
     // 转账请求响应
     wsManager.on('transferRequestResponse', (data: any) => {
       console.log('Transfer request response:', data);
+      if (data.requestId && this.pendingRevertRequests[data.requestId]) {
+        this.handleTransferRevertResponse(data);
+        return;
+      }
+
       if (data.accepted) {
         wx.showToast({ title: '转账请求已接受', icon: 'success' });
       } else {
@@ -319,7 +325,13 @@ Page({
     // 转账失败
     wsManager.on('transferFailed', (data: any) => {
       console.log('Transfer failed:', data);
-      wx.showToast({ title: '转账失败', icon: 'none' });
+      if (data.requestId && this.pendingRevertRequests[data.requestId]) {
+        delete this.pendingRevertRequests[data.requestId];
+      }
+      wx.showToast({
+        title: data.requestType === 'revertTransfer' ? '撤销失败' : '转账失败',
+        icon: 'none'
+      });
     });
 
     // 房间设置更新
@@ -394,18 +406,23 @@ Page({
   // 显示转账请求弹窗
   showTransferRequest(data: any) {
     const { members } = this.data;
+    if (data.receiverId && data.receiverId !== this.data.currentUserId) return;
+
     const sender = members.find(m => m.userId === data.senderId);
     if (!sender) return;
 
+    const isRevertRequest = data.requestType === 'revertTransfer';
     wx.showModal({
-      title: '转账请求',
-      content: `${sender.roomNickname} 向你请求转账 ${data.amount} 分`,
+      title: isRevertRequest ? '撤销转账请求' : '转账请求',
+      content: isRevertRequest
+        ? `${sender.roomNickname} 想撤销给你的 ${data.amount} 分，是否同意？`
+        : `${sender.roomNickname} 向你请求转账 ${data.amount} 分`,
+      confirmText: '同意',
+      cancelText: '拒绝',
       success: (res) => {
         if (res.confirm) {
-          // 接受转账请求
           wsManager.respondToTransferRequest(data.requestId, true);
         } else if (res.cancel) {
-          // 拒绝转账请求
           wsManager.respondToTransferRequest(data.requestId, false);
         }
       }
@@ -547,15 +564,43 @@ Page({
     const { transferId } = event.currentTarget.dataset;
     if (!transferId) return;
 
-    try {
-      await api.revertTransfer({
-        transferId,
-        userId: this.data.currentUserId
-      });
-      wx.showToast({ title: '撤销成功', icon: 'success' });
-    } catch (error) {
-      console.error('撤销转分失败:', error);
+    const transfer = this.data.transfers.find(item => item.id === transferId);
+    if (!transfer || transfer.status !== 'completed') return;
+
+    wx.showModal({
+      title: '申请撤销',
+      content: `需要 ${this.getMemberName(transfer.receiverId)} 同意后才可撤销这笔 ${transfer.amount} 分的转账。`,
+      confirmText: '发送申请',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) return;
+
+        const requestId = wsManager.sendTransferRevertRequest(
+          this.data.roomInfo.id,
+          transfer.receiverId,
+          transfer.id,
+          Number(transfer.amount)
+        );
+        this.pendingRevertRequests[requestId] = transfer.id;
+        wx.showToast({ title: '撤销申请已发送', icon: 'success' });
+      }
+    });
+  },
+
+  handleTransferRevertResponse(data: any) {
+    delete this.pendingRevertRequests[data.requestId];
+
+    if (!data.accepted) {
+      wx.showToast({ title: '对方已拒绝撤销', icon: 'none' });
+      return;
     }
+
+    wx.showToast({ title: '对方已同意撤销', icon: 'success' });
+  },
+
+  getMemberName(userId: string) {
+    const member = this.data.members.find(item => item.userId === userId);
+    return member?.roomNickname || '对方';
   },
 
   // 阻止事件冒泡

@@ -1,10 +1,17 @@
-import { api } from '../../services/api';
+import { api, RoomMember, Transfer } from '../../services/api';
 
 interface SettlementTransfer {
   id: string;
   fromName: string;
   toName: string;
   amount: number;
+}
+
+interface DisplayMember {
+  userId: string;
+  roomAvatar: string;
+  roomNickname: string;
+  score: number;
 }
 
 Page({
@@ -40,8 +47,12 @@ Page({
     try {
       wx.showLoading({ title: '加载中...' });
 
-      const data = await api.getSettlementDetails(roomId);
-      const { room, roomDetails, members, transfers } = data;
+      const [data, roomTransfers] = await Promise.all([
+        api.getSettlementDetails(roomId),
+        api.getTransfersByRoom(roomId)
+      ]);
+      const { room, roomDetails, members } = data;
+      const transfers = this.mergeTransfers(roomTransfers || [], data.transfers || []);
 
       const memberMap = new Map(members.map(m => [m.userId, m]));
       if (!room.creatorId) {
@@ -51,7 +62,9 @@ Page({
       }
       const creator = memberMap.get(room.creatorId);
 
-      const formattedTransfers = transfers.map(t => {
+      const formattedTransfers = transfers
+        .sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
+        .map(t => {
         const sender = memberMap.get(t.senderId);
         const receiver = memberMap.get(t.receiverId);
         return {
@@ -59,16 +72,20 @@ Page({
           time: this.formatTime(t.createdAt),
           senderName: sender?.roomNickname || '未知用户',
           receiverName: receiver?.roomNickname || '未知用户',
-          amount: t.amount
+          amount: t.amount,
+          status: t.status
         };
       });
+      const scoreMap = this.calculateScoresFromCompletedTransfers(members, transfers);
       const formattedMembers = members.map(m => ({
         userId: m.userId,
         roomAvatar: m.roomAvatar,
         roomNickname: m.roomNickname,
-        score: m.score
-      }));
+        score: scoreMap.get(m.userId) || 0
+      })).sort((a, b) => b.score - a.score);
       const settlementTransfers = this.calculateSettlementTransfers(formattedMembers);
+      const currentUser = wx.getStorageSync('userInfo');
+      const currentUserScore = currentUser?.id ? scoreMap.get(currentUser.id) || 0 : 0;
 
       this.setData({
         roomNumber: room.roomNumber,
@@ -77,7 +94,7 @@ Page({
         creatorName: creator?.roomNickname || '未知用户',
         elapsedTime: this.calcElapsedTime(roomDetails.totalDuration || ''),
         members: formattedMembers,
-        currentBalance: roomDetails.creatorScore + "",
+        currentBalance: currentUserScore.toFixed(2),
         transfers: formattedTransfers,
         settlementTransfers
       });
@@ -120,7 +137,29 @@ Page({
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   },
 
-  calculateSettlementTransfers(members: Array<{ userId: string; roomNickname: string; score: number }>): SettlementTransfer[] {
+  mergeTransfers(primary: Transfer[], fallback: Transfer[]): Transfer[] {
+    const transferMap = new Map<string, Transfer>();
+    fallback.forEach(transfer => transferMap.set(transfer.id, transfer));
+    primary.forEach(transfer => transferMap.set(transfer.id, transfer));
+    return Array.from(transferMap.values());
+  },
+
+  calculateScoresFromCompletedTransfers(members: RoomMember[], transfers: Transfer[]): Map<string, number> {
+    const scoreMap = new Map<string, number>();
+    members.forEach(member => scoreMap.set(member.userId, 0));
+
+    transfers
+      .filter(transfer => transfer.status === 'completed')
+      .forEach(transfer => {
+        const amount = Number(transfer.amount) || 0;
+        scoreMap.set(transfer.senderId, (scoreMap.get(transfer.senderId) || 0) - amount);
+        scoreMap.set(transfer.receiverId, (scoreMap.get(transfer.receiverId) || 0) + amount);
+      });
+
+    return scoreMap;
+  },
+
+  calculateSettlementTransfers(members: DisplayMember[]): SettlementTransfer[] {
     const debtors = members
       .filter(member => member.score < 0)
       .map(member => ({

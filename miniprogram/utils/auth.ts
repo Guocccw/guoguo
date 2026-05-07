@@ -40,6 +40,23 @@ export function getCachedUser(): User | null {
   return wx.getStorageSync(USER_KEY) || null;
 }
 
+// 从服务端刷新当前用户，避免多端修改头像/昵称后继续使用旧缓存
+export async function refreshCachedUser(): Promise<User> {
+  const cachedUser = getCachedUser();
+  if (!cachedUser?.id) {
+    return await silentLogin();
+  }
+
+  try {
+    const latestUser = await api.getUserById(cachedUser.id);
+    wx.setStorageSync(USER_KEY, latestUser);
+    return latestUser;
+  } catch (error) {
+    console.error('刷新用户信息失败', error);
+    return cachedUser;
+  }
+}
+
 // 确保用户已登录，未登录则触发登录流程
 export async function ensureLogin(): Promise<User> {
   const cachedUser = getCachedUser();

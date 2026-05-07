@@ -1,4 +1,5 @@
 import { api } from '../../services/api';
+import { refreshCachedUser } from '../../utils/auth';
 const RECENT_HISTORY_LIMIT = 5;
 
 Page({
@@ -14,21 +15,19 @@ Page({
 
   onLoad() {
     const windowInfo = (wx as any).getWindowInfo();
-    const userInfo = wx.getStorageSync('userInfo');
     console.log(windowInfo.statusBarHeight);
     this.setData({
-      statusBarHeight: windowInfo.statusBarHeight,
-      userInfo: userInfo
+      statusBarHeight: windowInfo.statusBarHeight
     });
   },
-  onShow() {
+  async onShow() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
         selected: 1
       });
     }
-    // 重新获取用户信息，确保更新
-    const userInfo = wx.getStorageSync('userInfo');
+    // 重新获取用户信息，确保多端修改头像/昵称后页面展示一致
+    const userInfo = await refreshCachedUser();
     this.setData({ userInfo: userInfo });
     this.loadStats();
     this.loadHistory();
