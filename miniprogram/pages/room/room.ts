@@ -31,6 +31,7 @@ Page({
   // 定时器实例
   timer: null as any,
   wsListenersRegistered: false,
+  settlementRedirecting: false,
 
   onLoad(options: any) {
     // 获取状态栏高度
@@ -224,22 +225,21 @@ Page({
       console.log('Room status changed:', data);
       try {
         if (data.status == 'settled') {
-          // 加载结算详情
-          // this.loadSettlementDetails();
+          if (this.settlementRedirecting) return;
+          this.settlementRedirecting = true;
+          const roomId = data.roomId || this.data.roomInfo.id;
           console.log('房间已结算');
-          wx.showToast({
-            title: '结算成功',
-            icon: 'success',
-            duration: 1500,
+          wx.showModal({
+            title: '房间已结算',
+            content: '本局已完成结算，点击查看结果。',
+            showCancel: false,
+            confirmText: '查看结果',
             success: () => {
-              // 清除定时器
               this.clearTimer();
-              // 断开WebSocket连接
               wsManager.disconnect();
-              // 延迟返回，让用户看到成功提示
-              setTimeout(() => {
-                wx.navigateBack();
-              }, 1500);
+              wx.redirectTo({
+                url: `/pages/record/record?roomId=${encodeURIComponent(roomId)}`
+              });
             }
           });
         }
