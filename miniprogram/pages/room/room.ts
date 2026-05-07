@@ -30,21 +30,22 @@ Page({
 
   // 定时器实例
   timer: null as any,
+  wsListenersRegistered: false,
 
   onLoad(options: any) {
-    ensureLogin().then(user => {
-      this.setData({ currentUserId: user.id });
-    });
-
     // 获取状态栏高度
     const windowInfo = (wx as any).getWindowInfo();
     this.setData({ statusBarHeight: windowInfo.statusBarHeight });
 
-    // 获取房间号并加载数据
-    if (options.roomNumber) {
-      this.setData({ roomNumber: options.roomNumber });
-      this.loadRoomData(options.roomNumber);
-    }
+    ensureLogin().then(user => {
+      this.setData({ currentUserId: user.id });
+
+      // 获取房间号并加载数据
+      if (options.roomNumber) {
+        this.setData({ roomNumber: options.roomNumber });
+        this.loadRoomData(options.roomNumber);
+      }
+    });
   },
 
   // 加载房间相关数据
@@ -56,10 +57,10 @@ Page({
       // 获取房间成员
       const members = await api.getMembers(roomInfo.id) || [];
       // 按分数排序（从高到低）
-      const sortedMembers = members.sort((a, b) => b.score - a.score);
+      const sortedMembers = this.sortMembers(members);
       console.log('排序后的成员:', sortedMembers);
       // 计算当前用户余额
-      const currentMember = sortedMembers.find(m => m.userId === this.data.currentUserId);
+      const currentMember = sortedMembers.find((m: RoomMember) => m.userId === this.data.currentUserId);
 
       // 检查用户是否已加入房间，未加入则调用加入接口
       if (!currentMember) {
@@ -87,7 +88,7 @@ Page({
       const roomDate = this.formatDate(roomInfo.createdAt || '');
 
       // 获取创建者名称
-      const creatorMember = sortedMembers.find(m => m.userId === roomInfo.creatorId);
+      const creatorMember = sortedMembers.find((m: RoomMember) => m.userId === roomInfo.creatorId);
       const creatorName = creatorMember?.roomNickname || '未知';
 
       this.setData({
@@ -105,15 +106,7 @@ Page({
         return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
       });
       // 格式化转分记录，添加时间和接收者名称
-      const formattedTransfers = sortedTransfers.map(transfer => {
-        const receiver = members.find(m => m.userId === transfer.receiverId);
-        return {
-          ...transfer,
-          senderName: members.find(m => m.userId === transfer.senderId)?.roomNickname || '未知用户',
-          time: this.formatTime(transfer.createdAt || ''),
-          receiverName: receiver?.roomNickname || '未知用户'
-        };
-      });
+      const formattedTransfers = sortedTransfers.map(transfer => this.formatTransfer(transfer, sortedMembers));
       this.setData({
         transfers: formattedTransfers
       });
@@ -164,6 +157,9 @@ Page({
 
   // 注册WebSocket事件监听器
   registerWebSocketListeners() {
+    if (this.wsListenersRegistered) return;
+    this.wsListenersRegistered = true;
+
     // 成员状态变更
     wsManager.on('memberStatusChanged', (data: any) => {
       console.log('Member status changed:', data);
@@ -188,11 +184,11 @@ Page({
         return member;
       });
       // 重新排序
-      const sortedMembers = updatedMembers.sort((a, b) => b.score - a.score);
+      const sortedMembers = this.sortMembers(updatedMembers);
       this.setData({ members: sortedMembers });
 
       // 更新当前用户余额
-      const currentMember = sortedMembers.find(m => m.userId === this.data.currentUserId);
+      const currentMember = sortedMembers.find((m: RoomMember) => m.userId === this.data.currentUserId);
       if (currentMember) {
         this.setData({ currentBalance: currentMember.score });
       }
@@ -202,12 +198,9 @@ Page({
     wsManager.on('transferCreated', (data: any) => {
       console.log('Transfer created:', data);
       const { transfers, members } = this.data;
-      const receiver = members.find(m => m.userId === data.receiverId);
-      const newTransfer = {
-        ...data,
-        time: this.formatTime(data.createdAt || ''),
-        receiverName: receiver?.roomNickname || '未知用户'
-      };
+      if (transfers.some(transfer => transfer.id === data.id)) return;
+
+      const newTransfer = this.formatTransfer(data, members);
       const updatedTransfers = [newTransfer, ...transfers];
       this.setData({ transfers: updatedTransfers });
     });
@@ -259,6 +252,11 @@ Page({
     wsManager.on('memberJoined', (data: any) => {
       console.log('Member joined:', data);
       // 重新加载成员列表
+      this.loadRoomMembers();
+    });
+
+    wsManager.on('roomMembersChanged', (data: any) => {
+      console.log('Room members changed:', data);
       this.loadRoomMembers();
     });
 
@@ -340,7 +338,37 @@ Page({
     // 房间信息同步
     wsManager.on('roomInfoSynced', (data: any) => {
       console.log('Room info synced:', data);
-      // 这里可以处理房间信息同步，例如更新成员列表、转账记录等
+      this.applyRoomSnapshot(data);
+    });
+  },
+
+  sortMembers(members: RoomMember[]) {
+    return [...members].sort((a, b) => Number(b.score) - Number(a.score));
+  },
+
+  formatTransfer(transfer: Transfer, members: RoomMember[]) {
+    const sender = members.find(m => m.userId === transfer.senderId);
+    const receiver = members.find(m => m.userId === transfer.receiverId);
+
+    return {
+      ...transfer,
+      senderName: sender?.roomNickname || '未知用户',
+      receiverName: receiver?.roomNickname || '未知用户',
+      time: this.formatTime(transfer.createdAt || '')
+    };
+  },
+
+  applyRoomSnapshot(data: { members?: RoomMember[]; transfers?: Transfer[] }) {
+    const members = this.sortMembers(data.members || this.data.members);
+    const transfers = [...(data.transfers || this.data.transfers)]
+      .sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
+      .map(transfer => this.formatTransfer(transfer, members));
+
+    const currentMember = members.find((m: RoomMember) => m.userId === this.data.currentUserId);
+    this.setData({
+      members,
+      transfers,
+      currentBalance: currentMember ? Number(currentMember.score) : this.data.currentBalance
     });
   },
 
@@ -352,8 +380,12 @@ Page({
     try {
       const members = await api.getMembers(roomInfo.id) || [];
       // 按分数排序（从高到低）
-      const sortedMembers = members.sort((a, b) => b.score - a.score);
-      this.setData({ members: sortedMembers });
+      const sortedMembers = this.sortMembers(members);
+      const currentMember = sortedMembers.find((m: RoomMember) => m.userId === this.data.currentUserId);
+      this.setData({
+        members: sortedMembers,
+        currentBalance: currentMember ? Number(currentMember.score) : this.data.currentBalance
+      });
     } catch (error) {
       console.error('加载房间成员失败:', error);
     }
@@ -511,6 +543,21 @@ Page({
     wsManager.updateTypingStatus(this.data.roomInfo.id, false);
   },
 
+  async onRevertTransfer(event: any) {
+    const { transferId } = event.currentTarget.dataset;
+    if (!transferId) return;
+
+    try {
+      await api.revertTransfer({
+        transferId,
+        userId: this.data.currentUserId
+      });
+      wx.showToast({ title: '撤销成功', icon: 'success' });
+    } catch (error) {
+      console.error('撤销转分失败:', error);
+    }
+  },
+
   // 阻止事件冒泡
   stopBubble() {
     // 空函数，用于阻止事件冒泡
@@ -621,4 +668,3 @@ Page({
     wsManager.disconnect();
   }
 });
-

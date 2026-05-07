@@ -504,6 +504,35 @@ page {
   color: #4caf50;
 }
 
+.ledger-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.l-amount.is-reverted {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.revert-btn {
+  margin: 0;
+  padding: 0 18rpx;
+  min-width: 88rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  border-radius: 14rpx;
+  background-color: #fef2f2;
+  color: #ef4444;
+  font-size: 22rpx;
+  font-weight: 800;
+  border: none !important;
+}
+
+.revert-btn::after {
+  display: none;
+}
+
 .safe-area-inset {
   height: 20rpx;
 }

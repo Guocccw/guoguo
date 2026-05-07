@@ -97,7 +97,15 @@
           <text class="l-target">{{item.receiverName}}</text>
         </view>
       </view>
-      <text class="l-amount">+{{item.amount}}</text>
+      <view class="ledger-right">
+        <text class="l-amount {{item.status === 'reverted' ? 'is-reverted' : ''}}">+{{item.amount}}</text>
+        <button
+          wx:if="{{index === 0 && item.status === 'completed' && item.senderId === currentUserId}}"
+          class="revert-btn"
+          data-transfer-id="{{item.id}}"
+          catchtap="onRevertTransfer"
+        >撤销</button>
+      </view>
     </view>
   </view>
   <view class="safe-area-inset"></view>

@@ -15,7 +15,7 @@ export interface Room {
   roomNumber: string;
   name: string;
   creatorId?: string;
-  status: 'active' | 'settled';
+  status: 'active' | 'settled' | 'dismissed';
   createdAt?: string;
   updatedAt?: string;
 }

@@ -169,7 +169,7 @@ class WebSocketManager {
       setTimeout(() => {
         console.log('执行重连');
         this.isReconnecting = true;
-        this.connect(this.url);
+        this.connect(this.url, this.currentUserId, this.currentRoomId);
       }, delay);
     } else {
       console.error('重连失败，已达到最大尝试次数');
@@ -273,7 +273,7 @@ class WebSocketManager {
    */
   updateTypingStatus(roomId: string, isTyping: boolean) {
     this.send({
-      type: 'typing',
+      type: 'typingStatus',
       data: { roomId, userId: this.currentUserId, isTyping }
     });
   }
@@ -285,9 +285,10 @@ class WebSocketManager {
    * @param amount 金额
    */
   sendTransferRequest(roomId: string, receiverId: string, amount: number) {
+    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     this.send({
       type: 'transferRequest',
-      data: { roomId, senderId: this.currentUserId, receiverId, amount }
+      data: { roomId, senderId: this.currentUserId, receiverId, amount, requestId }
     });
   }
 
